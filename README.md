@@ -1,3 +1,4 @@
 # Stanify
 
-Link for accessing the website
+Link for accessing the website:
+https://arzenith.github.io/Stanify/
