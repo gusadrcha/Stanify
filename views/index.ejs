@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container" style="display:flex; flex-direction: column;">
+      <form action="http://localhost:8888/spotify/search/artist/" method="POST">
+        <label for="artistName">Artist</label>
+        <input type="text" required name="artistName">
+        <button type="submit">Search!</button>
+      </form>
+
+      <div class="results" style="display:flex; flex-direction: column;">
+        <% if(artistData != undefined){ %>
+        <h1> <%= artistData[0].name %> </h1>
+        <% artistData[0].albums.forEach((album) =>{ %>
+          <% album.tracks.forEach((track) =>{ %>
+            <p>
+              <%= track.name %>
+            </p>
+            <audio controls>
+              <source src="<%= track.previewUrl %>">
+            </audio>
+          <% }) %>
+       <% }) %>
+       <% } %>
+      </div>
+  </body>
+</html>

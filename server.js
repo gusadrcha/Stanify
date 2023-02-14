@@ -17,14 +17,14 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Routes
-//app.use('/Spotify', require('./routes/Spotify'))
+app.use('/spotify', require('./routes/spotify'))
 
 // View Engine
 app.set('views', './views')
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-    res.render('index.ejs', { artistName: '' });
+    res.render('index.ejs', { artistData: undefined });
 })
 
 // Start up the server
