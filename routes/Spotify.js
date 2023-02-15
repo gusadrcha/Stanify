@@ -1,4 +1,3 @@
-
 const express = require('express');
 const axios = require('axios');
 const { response } = require('express');
@@ -41,12 +40,13 @@ router.use('/', async (req, res, next) => {
     next();
 })
 
-// ----- Middleware for the endpoint 'spotify/artist' -----
+// ----- Middleware for the endpoint 'spotify/search/artist' -----
 
 // Function to retreive the artist
-router.use('/search/artist', async (req, res, next) =>{
+router.use('/search/artist/:search', async (req, res, next) =>{
+    console.log(req.params.search);
     console.log("Search for artist Middleware ran!");
-    if(req.body.artistName === ' ' || req.body.artistName == undefined)
+    if(req.params.search === ' ' || req.params.search == undefined)
     {
         res.render('index.ejs', { artistName: []});
         return;
@@ -56,7 +56,7 @@ router.use('/search/artist', async (req, res, next) =>{
     var artistSearchResult;
 
     try{
-        const customUrl = baseUrl + `search?query=${req.body.artistName}&type=artist&offset=0&limit=1&market=US`
+        const customUrl = baseUrl + `search?query=${req.params.search}&type=artist&offset=0&limit=1&market=US`
         response = await axios.get(customUrl, { 
             headers: {
                 'Authorization': 'Bearer ' + accessToken,
@@ -78,7 +78,7 @@ router.use('/search/artist', async (req, res, next) =>{
 })
 
 // Function to retreive the artist's albums
-router.use('/search/artist', async (req, res, next) =>{
+router.use('/search/artist/:search', async (req, res, next) =>{
     console.log("Grabbing artists albums Middleware Ran!");
 
     for(let i = 0; i < res.locals.artistData.length; i++)
@@ -90,7 +90,7 @@ router.use('/search/artist', async (req, res, next) =>{
 })
 
 // Function to retreive the album's tracks
-router.use('/search/artist', async (req, res, next) =>{
+router.use('/search/artist/:search', async (req, res, next) =>{
     console.log("Grabbing the songs from each album!");
     try{
         if(res.locals.artistData[0] == undefined)
@@ -111,7 +111,7 @@ router.use('/search/artist', async (req, res, next) =>{
     {
         
         try{
-            var customUrl = baseUrl + `albums/${res.locals.artistData[0].albums[i].id}/tracks`
+            var customUrl = baseUrl + `albums/${res.locals.artistData[0].albums[i].id}/tracks?market=US`
             response = await axios.get(customUrl, { 
                 headers: {
                     'Authorization': 'Bearer ' + accessToken,
@@ -121,7 +121,7 @@ router.use('/search/artist', async (req, res, next) =>{
             
             for(let i = 0; i < response.data.items.length; i++)
             {
-                tracks.push(new Track(response.data.items[i].name, response.data.items[i].preview_url));
+                tracks.push(new Track(response.data.items[i].name, response.data.items[i].preview_url, response.data.items[i].id));
             }
 
             res.locals.artistData[0].albums[i].tracks = tracks;
@@ -144,7 +144,7 @@ router.get('/', async (req, res) => {
     res.redirect("http://localhost:8888/");
 })
 
-router.post('/search/artist', async (req, res) => {
+router.get('/search/artist/:search', async (req, res) => {
     res.send({ artistData : res.locals.artistData });
     //res.render('index.ejs', { artistName: res.locals.artistData });
 })
@@ -156,13 +156,11 @@ async function generateAccessToken() {
 
 async function formatArtistSearch(artistData){
     var artistArray = [];
-    var count = 0;
 
     artistData.forEach(element => {
         if(element.images[0] != null)
         {
             artistArray.push(new Artist(element.name, element.images[0].url, element.id));
-            count++;
         }
     })
 
@@ -217,10 +215,11 @@ function ArtistAlbums(name, albumPicture, id, tracks)
     this.tracks = tracks;
 }
 
-function Track(name, previewUrl)
+function Track(name, previewUrl, id)
 {
     this.name = name;
     this.previewUrl = previewUrl;
+    this.id = id;
 }
 
 module.exports = router;

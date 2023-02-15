@@ -14,20 +14,5 @@
         <button type="submit">Search!</button>
       </form>
 
-      <div class="results" style="display:flex; flex-direction: column;">
-        <% if(artistData != undefined){ %>
-        <h1> <%= artistData[0].name %> </h1>
-        <% artistData[0].albums.forEach((album) =>{ %>
-          <% album.tracks.forEach((track) =>{ %>
-            <p>
-              <%= track.name %>
-            </p>
-            <audio controls>
-              <source src="<%= track.previewUrl %>">
-            </audio>
-          <% }) %>
-       <% }) %>
-       <% } %>
-      </div>
   </body>
 </html>
