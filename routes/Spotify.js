@@ -146,7 +146,6 @@ router.get('/', async (req, res) => {
 
 router.get('/search/artist/:search', async (req, res) => {
     res.send({ artistData : res.locals.artistData });
-    //res.render('index.ejs', { artistName: res.locals.artistData });
 })
 
 async function generateAccessToken() {

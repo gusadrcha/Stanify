@@ -1,0 +1,223 @@
+// Stopwatch Example
+// https://codepen.io/cathydutton/pen/xxpOOw
+
+// DOM Variables
+var player = document.getElementById('player');
+var appendTens = document.getElementById("tens")
+var appendSeconds = document.getElementById("seconds")
+var guessInput = document.getElementById("input-box");
+var lastGuess = document.getElementById("last-guess");
+var buttonList = document.getElementById("button-list");
+var addButton = document.getElementById("add-button").addEventListener("click", addArtist);
+var albumArt = document.getElementById("album-art");
+
+// Fetch Variables
+var res;
+var nonNullTrackCount = 0;
+var nullTrackCount = 0;
+var albumCount = 0;
+var songs = [];
+var artist = "Baby Keem";
+
+// Stopwatch Variables
+var seconds = 00; 
+var tens = 00; 
+var Interval;
+
+// Global var
+var currentSong = "";
+
+// Data Types
+function Song(name, albumPicture, previewUrl) {
+    this.name = name;
+    this.albumPicture = albumPicture;
+    this.previewUrl = previewUrl;
+}
+
+// Function fetches data and parses based off input artist
+function fetchSongs(artistInput) {
+    // Reset Game
+    songs = [];
+    player.pause();
+    resetTimer();
+
+    // When Fetching, display loading gif
+    albumArt.src = "./img/load.gif";
+    albumArt.classList.remove("blur");
+
+    // Create artist URL used for fetch
+    artistURL = "http://localhost:8888/spotify/search/artist/" + artistInput
+
+    fetch(artistURL)
+    .then(response =>{
+        if(!response.ok)
+        {
+            console.log('Something went wrong');
+            return;
+        }
+        return response.json();
+    })
+    .then(async (response) =>{
+        await parseArtist(response);
+        await LoadAudioPlayer();
+    })
+}
+
+// Passed fetch json, parse artist data and load into songs[] array
+async function parseArtist(res) {
+    var artistParsed = res.artistData[0];
+    artistParsed.albums.forEach((album) => {
+        album.tracks.forEach((track) => {
+            if(track.previewUrl != null) {
+                songs.push(new Song(track.name, album.albumPicture, track.previewUrl));
+
+                nonNullTrackCount++;
+            }
+            else {
+                nullTrackCount++;
+            }
+        })
+
+        albumCount++;
+    })
+
+    // Print out fetch data info
+    console.log(artistParsed.name)
+    console.log('Available', nonNullTrackCount);
+    console.log('Not Available', nullTrackCount);
+    console.log('Album Count', albumCount);
+
+    console.log(songs)
+}
+
+// Loads audio player when songs have been loaded
+async function LoadAudioPlayer() {
+    // Random Song Loaded
+    currentSong = songs.at(Math.floor(Math.random() * songs.length));
+
+    // Load current songs album picture and adds styling
+    albumArt.src = currentSong.albumPicture;
+    albumArt.classList.add("blur");
+    // Load preview song into source
+    player.src = currentSong.previewUrl;
+
+    // Add listener for guessing input box
+    guessInput.addEventListener("keyup", ({key}) => {
+        // When user presses enter, check if string is correct
+        if (key === "Enter") {
+            // If correct
+            if(guessInput.value.toLowerCase() === currentSong.name.toLowerCase()) {
+                clearInterval(Interval)
+                
+                // If the hundreds place is 0, add a zero to the string
+                // BUGGYYY!!!! If .01 then displays .10 this is obv wrong
+                if(String(tens).length == 1) {
+                    tens = tens + "0"
+                }
+
+                // Update Lastest Score
+                score = String(seconds + "." + tens + " seconds")
+                lastGuess.innerHTML = score
+                
+                // Begin Unblur Animation
+                albumArt.classList.remove("blur");
+                albumArt.classList.add("unblur");
+
+                // Change border to green, add correct animation class
+                guessInput.style.border = "solid 2px #1DB954";
+                guessInput.classList.remove("invalid");
+                guessInput.classList.add("correct");
+            }
+            // If incorrect
+            else {
+                // Change border to red, add invalid aniamtion class
+                guessInput.style.border = "solid 2px red";
+                guessInput.classList.add("invalid");
+                guessInput.classList.remove("correct");
+            }
+        }
+    })
+}
+
+// Audio Player Functionality
+document.onkeydown = function (e) {
+    // Start Player by pressing 0
+    if(e.code == "Digit0"){
+        // If the player is paused, begin playing -- vice versa
+        if (player.paused) {
+            player.play();
+
+            // Begin Stopwatch
+            clearInterval(Interval);
+            Interval = setInterval(startTimer, 10);
+        }
+        else {
+            player.pause();
+        }
+    }
+    // Play Random Song by pressing Right Arrow Key
+    if(e.code == "ArrowRight"){        
+        // Load new first song in array
+        currentSong = songs.at(Math.floor(Math.random() * songs.length));
+        console.log(currentSong.name);
+
+        // Load into player
+        player.src = currentSong.previewUrl;
+        player.pause();
+
+        // Album Art Handling
+        albumArt.src = currentSong.albumPicture;
+        albumArt.classList.remove("unblur");
+        albumArt.classList.add("blur");
+        
+        // When user skips song, reset timer
+        resetTimer()
+    }
+};
+
+// Called when song begins playing, counts up
+function startTimer () {
+    tens++;
+
+    if(tens <= 9) {
+        appendTens.innerHTML = "0" + tens;
+    }
+    if (tens > 9) {
+        appendTens.innerHTML = tens;
+    }
+    if (tens > 99) {
+        seconds++;
+        appendSeconds.innerHTML = "0" + seconds;
+        tens = 0;
+        appendTens.innerHTML = "0" + 0;
+    }
+    if (seconds > 9){
+        appendSeconds.innerHTML = seconds;
+    }
+}
+
+function resetTimer() {
+    clearInterval(Interval);
+    tens = "00";
+    seconds = "00";
+
+    // Update HTML
+    appendTens.innerHTML = tens;
+    appendSeconds.innerHTML = seconds;
+}
+
+// Called by HTML when input is changed, allows animation to replay
+function updateInputAnimation() {
+    guessInput.classList.remove("invalid");
+    guessInput.classList.remove("correct");
+}
+
+// Adds artist to dropdown menu when add button is clicked
+function addArtist() {
+    newArtist = document.createElement("a");
+    newArtist.innerHTML = "New Artist";
+    newArtist.classList += "dropdown-item";
+    buttonList.appendChild(newArtist);
+}
+
+fetchSongs(artist)
