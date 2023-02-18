@@ -1,6 +1,8 @@
 // Stopwatch Example
 // https://codepen.io/cathydutton/pen/xxpOOw
 
+// TODO after 30 sec, ask user if they want to reveal answer or replay song
+
 // DOM Variables
 var player = document.getElementById('player');
 var appendTens = document.getElementById("tens");
@@ -27,7 +29,7 @@ var nonNullTrackCount = 0;
 var nullTrackCount = 0;
 var albumCount = 0;
 var songs = [];
-var artist = "Charli XCX";
+var artist = "Hanz Zimmer";
 
 // Stopwatch Variables
 var seconds = 00; 
