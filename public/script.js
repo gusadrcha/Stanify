@@ -3,13 +3,23 @@
 
 // DOM Variables
 var player = document.getElementById('player');
-var appendTens = document.getElementById("tens")
-var appendSeconds = document.getElementById("seconds")
-var guessInput = document.getElementById("input-box");
+var appendTens = document.getElementById("tens");
+var appendSeconds = document.getElementById("seconds");
+
 var lastGuess = document.getElementById("last-guess");
+
 var buttonList = document.getElementById("button-list");
 var addButton = document.getElementById("add-button").addEventListener("click", addArtist);
+var searchArtistInput = document.getElementById("lookup-input");
+// When user presses enter in input box, call add artist function
+searchArtistInput.addEventListener("keyup", ({key}) => {
+    if(key === "Enter") {
+        addArtist()
+    }
+})
+
 var albumArt = document.getElementById("album-art");
+var guessInput = document.getElementById("input-box");
 
 // Fetch Variables
 var res;
@@ -17,7 +27,7 @@ var nonNullTrackCount = 0;
 var nullTrackCount = 0;
 var albumCount = 0;
 var songs = [];
-var artist = "Baby Keem";
+var artist = "Charli XCX";
 
 // Stopwatch Variables
 var seconds = 00; 
@@ -39,7 +49,7 @@ function fetchSongs(artistInput) {
     // Reset Game
     songs = [];
     player.pause();
-    resetTimer();
+    resetTimer(false);
 
     // When Fetching, display loading gif
     albumArt.src = "./img/load.gif";
@@ -86,7 +96,6 @@ async function parseArtist(res) {
     console.log('Available', nonNullTrackCount);
     console.log('Not Available', nullTrackCount);
     console.log('Album Count', albumCount);
-
     console.log(songs)
 }
 
@@ -156,14 +165,14 @@ document.onkeydown = function (e) {
         }
     }
     // Play Random Song by pressing Right Arrow Key
-    if(e.code == "ArrowRight"){        
+    if(e.code == "ArrowRight"){
         // Load new first song in array
         currentSong = songs.at(Math.floor(Math.random() * songs.length));
         console.log(currentSong.name);
 
         // Load into player
         player.src = currentSong.previewUrl;
-        player.pause();
+        player.play();
 
         // Album Art Handling
         albumArt.src = currentSong.albumPicture;
@@ -171,12 +180,18 @@ document.onkeydown = function (e) {
         albumArt.classList.add("blur");
         
         // When user skips song, reset timer
-        resetTimer()
+        resetTimer(true)
+
+        // Reset guessbox input val and style
+        guessInput.value = ""
+        guessInput.classList.remove("invalid");
+        guessInput.classList.remove("correct");
+        guessInput.style.border = "solid 2px #1DB954";
     }
 };
 
 // Called when song begins playing, counts up
-function startTimer () {
+function startTimer() {
     tens++;
 
     if(tens <= 9) {
@@ -196,7 +211,7 @@ function startTimer () {
     }
 }
 
-function resetTimer() {
+function resetTimer(nextFlag) {
     clearInterval(Interval);
     tens = "00";
     seconds = "00";
@@ -204,6 +219,11 @@ function resetTimer() {
     // Update HTML
     appendTens.innerHTML = tens;
     appendSeconds.innerHTML = seconds;
+
+    // If right arrow key is pressed, reset timer
+    if(nextFlag == true) {
+        Interval = setInterval(startTimer, 10);
+    }
 }
 
 // Called by HTML when input is changed, allows animation to replay
@@ -214,10 +234,20 @@ function updateInputAnimation() {
 
 // Adds artist to dropdown menu when add button is clicked
 function addArtist() {
-    newArtist = document.createElement("a");
-    newArtist.innerHTML = "New Artist";
+    // Create <a> tag
+    var newArtist = document.createElement("a");
+    // Set tag HTML to value in input box 
+    newArtist.innerHTML = searchArtistInput.value;
+    newArtist.href = "#";
+    // Add class for styling/functionality
     newArtist.classList += "dropdown-item";
+    // Add onclick function with user input
+    newArtist.setAttribute("onclick", `fetchSongs('${searchArtistInput.value}')`);
+
     buttonList.appendChild(newArtist);
+
+    // Reset input box when finished
+    searchArtistInput.value = "";
 }
 
 fetchSongs(artist)

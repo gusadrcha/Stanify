@@ -31,7 +31,12 @@ html, body {
 }
 
 /* Dropdown */
-#dropdownMenuButton, #add-button {
+#dropdownMenuButton {
+    background: #1DB954;
+    box-shadow: none;
+}
+
+#add-button {
     background: #1DB954;
     box-shadow: none;
 }
@@ -67,16 +72,25 @@ html, body {
     box-shadow: none;
 }
 
-#input-box::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+#lookup-input {
+    background: #191414;
+    border: none;
+    border: solid 2px #1DB954;
+    color: white;
+    box-shadow: none;
+    flex: none;
+}
+
+#input-box::placeholder, #lookup-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: white;
     opacity: 1; /* Firefox */
 }
-  
-#input-box:-ms-input-placeholder { /* Internet Explorer 10-11 */
+
+#input-box:-ms-input-placeholder,  #lookup-input:-ms-input-placeholder{ /* Internet Explorer 10-11 */
     color: white;
 }
 
-#input-box::-ms-input-placeholder { /* Microsoft Edge */
+#input-box::-ms-input-placeholder, #search-input::-ms-input-placeholder { /* Microsoft Edge */
     color: white;
 }
 

@@ -30,7 +30,7 @@
 
     <div class="container-fluid">
         <div class="row top">
-            <div class="col-6 d-flex justify-content-start">
+            <div class="col-6 d-flex justify-content-start flex-row">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -45,8 +45,9 @@
                     </div>
                 </div>
 
-                <div>
-                    <button type="button" class="btn btn-dark btn-square-md" id="add-button">Add</button>
+                <div class="d-flex">
+                    <input type="text" class="form-control" placeholder="Search Artist..." id="lookup-input" />
+                    <div><button type="button" class="btn btn-dark btn-square-md" id="add-button">Add</button></div>
                 </div>
             </div>
 
