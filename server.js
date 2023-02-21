@@ -10,6 +10,7 @@ const axios = require("axios");
 const app = express();
 const bodyParser = require('body-parser');
 
+// Application will serve the html and css in the public directory
 app.use(express.static("public"));
 
 // Body Parser

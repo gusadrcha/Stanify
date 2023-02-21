@@ -1,16 +1,23 @@
+
+// Node.js libraries
 const express = require('express');
 const axios = require('axios');
 const { response } = require('express');
 const router = express.Router();
 
+// Spotify id's and secrets
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET
 
+// Url used to request a new token from Spotify
 const tokenUrl = 'https://accounts.spotify.com/api/token';
-const baseUrl = 'https://api.spotify.com/v1/';;
-var accessToken = '';
-var count = 0;
+// Url used as the base for all of Spotify's Endpoints
+const baseUrl = 'https://api.spotify.com/v1/';
 
+// Variable to hold the token
+var accessToken = '';
+
+// Request options to be sent when request for a new token 
 const reqOptions = {
     method: "POST",
     url: tokenUrl,
@@ -22,13 +29,16 @@ const reqOptions = {
 };
 
 // ----- Middleware for the base endpoint of spotify ------
+// Middleware will generate a new token when the user first accesses the  website
 router.use('/', async (req, res, next) => {
     console.log("Token Middleware Ran!")
+    // Function will generate a new key every hour
     setInterval(async function(){
         accessToken = await generateAccessToken();
         console.log('Generated a new access token');
-    }, 3600000);
+    }, 60 * 60 * 1000);
 
+    // if statment to generate the key for the first time
     if(accessToken === '')
     {
         console.log('Generating a new token...');
@@ -37,6 +47,7 @@ router.use('/', async (req, res, next) => {
         return;
     }
 
+    // Calls onto the next middleware in the sequence
     next();
 })
 
@@ -44,8 +55,9 @@ router.use('/', async (req, res, next) => {
 
 // Function to retreive the artist
 router.use('/search/artist/:search', async (req, res, next) =>{
-    console.log(req.params.search);
     console.log("Search for artist Middleware ran!");
+
+    // Error handling for if the query is empty
     if(req.params.search === ' ' || req.params.search == undefined)
     {
         res.render('index.ejs', { artistName: []});
@@ -55,6 +67,7 @@ router.use('/search/artist/:search', async (req, res, next) =>{
     var response;
     var artistSearchResult;
 
+    // Try-catch to handle errors
     try{
         const customUrl = baseUrl + `search?query=${req.params.search}&type=artist&offset=0&limit=1&market=US`
         response = await axios.get(customUrl, { 
@@ -65,7 +78,7 @@ router.use('/search/artist/:search', async (req, res, next) =>{
          });
 
         console.log("Query was a success");
-
+        // Formats the response and puts artists in an array
         artistSearchResult = await formatArtistSearch(response.data.artists.items);
     }
     catch(err)
@@ -73,6 +86,7 @@ router.use('/search/artist/:search', async (req, res, next) =>{
         console.error("Error: " + err.message);
     }
     
+    // Sets the current artist data to local storage within the server
     res.locals.artistData = artistSearchResult;
     next();
 })
@@ -81,6 +95,7 @@ router.use('/search/artist/:search', async (req, res, next) =>{
 router.use('/search/artist/:search', async (req, res, next) =>{
     console.log("Grabbing artists albums Middleware Ran!");
 
+    // Iterates through each artist and grabs their albums
     for(let i = 0; i < res.locals.artistData.length; i++)
     {
         res.locals.artistData[i].albums = await getArtistAlbums(res.locals.artistData[i].id);
@@ -92,6 +107,8 @@ router.use('/search/artist/:search', async (req, res, next) =>{
 // Function to retreive the album's tracks
 router.use('/search/artist/:search', async (req, res, next) =>{
     console.log("Grabbing the songs from each album!");
+    
+    // Try-catch to handle any errors in requesting artists
     try{
         if(res.locals.artistData[0] == undefined)
         {
@@ -111,6 +128,7 @@ router.use('/search/artist/:search', async (req, res, next) =>{
     {
         
         try{
+            // creates a customUrl to retreive the albums tracks in the US market
             var customUrl = baseUrl + `albums/${res.locals.artistData[0].albums[i].id}/tracks?market=US`
             response = await axios.get(customUrl, { 
                 headers: {
@@ -138,24 +156,30 @@ router.use('/search/artist/:search', async (req, res, next) =>{
     next();
 })
 
-// Endpoints
+// ---- Endpoints -----
+
+// Root endpoint of the Spotify router
 router.get('/', async (req, res) => {
     console.log(`Welcome to the Spotify Endpoint\nCurrent Token: ${accessToken}`);
     res.redirect("http://localhost:8888/");
 })
 
+// Endpoint for user to request an artist that takes in a search parameter
 router.get('/search/artist/:search', async (req, res) => {
     res.send({ artistData : res.locals.artistData });
 })
 
+// Function to generate the access token
 async function generateAccessToken() {
     const response = await axios(reqOptions);
     return response.data.access_token;
 }
 
+// Function to format the data received from the response once the query is sent to Spotify
 async function formatArtistSearch(artistData){
     var artistArray = [];
 
+    // Iterates through each artist and creates a new 'Artist' object
     artistData.forEach(element => {
         if(element.images[0] != null)
         {
@@ -166,10 +190,12 @@ async function formatArtistSearch(artistData){
     return artistArray;
 }
 
+// Function to fetch each artist's albums
 async function getArtistAlbums(artistid){
     var tempArray = []
     
     try{
+        // creates a customUrl to return only albums in the US market and limits the response to 50 albums
         const customUrl = baseUrl + `artists/${artistid}/albums?include_groups=album&market=US&limit=50`
         var response = await axios.get(customUrl, { 
             headers: {
@@ -178,6 +204,7 @@ async function getArtistAlbums(artistid){
             }
          });
 
+         // Calls on the formatArtistAlbums function to format the album data
          tempArray = await formatArtistAlbums(response.data.items);
     }
     catch(err)
@@ -188,9 +215,11 @@ async function getArtistAlbums(artistid){
     return tempArray;
 }
 
+// Function to format the response from fetching the artist's albums
 async function formatArtistAlbums(artistAlbums){
     var tempArray = [];
 
+    // Iterates through each album and creates a new 'ArtistAlbum' object
     artistAlbums.forEach(element =>{
         tempArray.push(new ArtistAlbums(element.name, element.images[0].url, element.id, null));
     })
@@ -198,6 +227,7 @@ async function formatArtistAlbums(artistAlbums){
     return tempArray;
 }
 
+// ---- Object defintions ----
 function Artist(name, artistPicture, id, albums)
 {
     this.name = name;

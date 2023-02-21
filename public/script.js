@@ -60,6 +60,7 @@ function fetchSongs(artistInput) {
     // Create artist URL used for fetch
     artistURL = "http://localhost:8888/spotify/search/artist/" + artistInput
 
+    // Use artistURL to fetch data from Spotify's API
     fetch(artistURL)
     .then(response =>{
         if(!response.ok)
@@ -70,17 +71,24 @@ function fetchSongs(artistInput) {
         return response.json();
     })
     .then(async (response) =>{
+        // After the response is received, begin to parse the default arist and generate all tracks
         await parseArtist(response);
+        // Load Audio Player with all generated tracks
         await LoadAudioPlayer();
     })
 }
 
 // Passed fetch json, parse artist data and load into songs[] array
 async function parseArtist(res) {
+    // Grab the aritst name from the reponse
     var artistParsed = res.artistData[0];
+
+    // Parse through the JSON and iterate through the tracks of each album
     artistParsed.albums.forEach((album) => {
         album.tracks.forEach((track) => {
+            // If the track exists
             if(track.previewUrl != null) {
+                // Add track to songs array
                 songs.push(new Song(track.name, album.albumPicture, track.previewUrl));
 
                 nonNullTrackCount++;
