@@ -29,7 +29,7 @@ var nonNullTrackCount = 0;
 var nullTrackCount = 0;
 var albumCount = 0;
 var songs = [];
-var artist = "Hanz Zimmer";
+var artist = "Eric Clapton";
 
 // Stopwatch Variables
 var seconds = 00; 
