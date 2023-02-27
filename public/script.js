@@ -1,8 +1,3 @@
-// Stopwatch Example
-// https://codepen.io/cathydutton/pen/xxpOOw
-
-// TODO after 30 sec, ask user if they want to reveal answer or replay song
-
 // DOM Variables
 var player = document.getElementById('player');
 var appendTens = document.getElementById("tens");
@@ -25,11 +20,9 @@ var guessInput = document.getElementById("input-box");
 
 // Fetch Variables
 var res;
-var nonNullTrackCount = 0;
-var nullTrackCount = 0;
-var albumCount = 0;
 var songs = [];
-var artist = "Eric Clapton";
+var songNames = [];
+var artist = "Ed Sheeran";
 
 // Stopwatch Variables
 var seconds = 00; 
@@ -38,6 +31,7 @@ var Interval;
 
 // Global var
 var currentSong = "";
+var currentFocus;
 
 // Data Types
 function Song(name, albumPicture, previewUrl) {
@@ -50,6 +44,7 @@ function Song(name, albumPicture, previewUrl) {
 function fetchSongs(artistInput) {
     // Reset Game
     songs = [];
+    songNames = [];
     player.pause();
     resetTimer(false);
 
@@ -78,9 +73,23 @@ function fetchSongs(artistInput) {
     })
 }
 
+// https://stackoverflow.com/a/9229821
+// Grabs first instance of song name literal and disregards the others following it
+function uniqByKeepFirst(allSongs, key) {
+    let seenSong = new Set();
+    return allSongs.filter(item => {
+        let songName = key(item);
+        return seenSong.has(songName) ? false : seenSong.add(songName);
+    });
+}
+
 // Passed fetch json, parse artist data and load into songs[] array
 async function parseArtist(res) {
-    // Grab the aritst name from the reponse
+    var nonNullTrackCount = 0;
+    var nullTrackCount = 0;
+    var albumCount = 0;
+    var allSongs = [];
+
     var artistParsed = res.artistData[0];
 
     // Parse through the JSON and iterate through the tracks of each album
@@ -96,6 +105,8 @@ async function parseArtist(res) {
             else {
                 nullTrackCount++;
             }
+
+            allSongs.push(new Song(track.name, album.albumPicture, track.previewUrl));
         })
 
         albumCount++;
@@ -103,10 +114,24 @@ async function parseArtist(res) {
 
     // Print out fetch data info
     console.log(artistParsed.name)
-    console.log('Available', nonNullTrackCount);
-    console.log('Not Available', nullTrackCount);
-    console.log('Album Count', albumCount);
+    // console.log('Album Count', albumCount);
+    console.log("Total Song Count", nonNullTrackCount + nullTrackCount)
+    console.log('Available Tracks', nonNullTrackCount);
+    console.log('Not Available Tracks', nullTrackCount);
+
+    console.log("All Songs Count Before Filtering", allSongs.length)
+    allSongs = uniqByKeepFirst(allSongs, song => song.name)
+    console.log("All Songs Count after Filtering", allSongs.length)
+
+    console.log("Available Songs Count Before Filtering", songs.length)
+    songs = uniqByKeepFirst(songs, song => song.name)
+    console.log("Available Songs Count After Filtering", songs.length)
+
     console.log(songs)
+
+    songs.forEach(song =>{
+        songNames.push(song.name);
+    })
 }
 
 // Loads audio player when songs have been loaded
@@ -119,43 +144,6 @@ async function LoadAudioPlayer() {
     albumArt.classList.add("blur");
     // Load preview song into source
     player.src = currentSong.previewUrl;
-
-    // Add listener for guessing input box
-    guessInput.addEventListener("keyup", ({key}) => {
-        // When user presses enter, check if string is correct
-        if (key === "Enter") {
-            // If correct
-            if(guessInput.value.toLowerCase() === currentSong.name.toLowerCase()) {
-                clearInterval(Interval)
-                
-                // If the hundreds place is 0, add a zero to the string
-                // BUGGYYY!!!! If .01 then displays .10 this is obv wrong
-                if(String(tens).length == 1) {
-                    tens = tens + "0"
-                }
-
-                // Update Lastest Score
-                score = String(seconds + "." + tens + " seconds")
-                lastGuess.innerHTML = score
-                
-                // Begin Unblur Animation
-                albumArt.classList.remove("blur");
-                albumArt.classList.add("unblur");
-
-                // Change border to green, add correct animation class
-                guessInput.style.border = "solid 2px #1DB954";
-                guessInput.classList.remove("invalid");
-                guessInput.classList.add("correct");
-            }
-            // If incorrect
-            else {
-                // Change border to red, add invalid aniamtion class
-                guessInput.style.border = "solid 2px red";
-                guessInput.classList.add("invalid");
-                guessInput.classList.remove("correct");
-            }
-        }
-    })
 }
 
 // Audio Player Functionality
@@ -176,6 +164,7 @@ document.onkeydown = function (e) {
     }
     // Play Random Song by pressing Right Arrow Key
     if(e.code == "ArrowRight"){
+        closeAllLists()
         // Load new first song in array
         currentSong = songs.at(Math.floor(Math.random() * songs.length));
         console.log(currentSong.name);
@@ -236,12 +225,6 @@ function resetTimer(nextFlag) {
     }
 }
 
-// Called by HTML when input is changed, allows animation to replay
-function updateInputAnimation() {
-    guessInput.classList.remove("invalid");
-    guessInput.classList.remove("correct");
-}
-
 // Adds artist to dropdown menu when add button is clicked
 function addArtist() {
     // Create <a> tag
@@ -258,6 +241,148 @@ function addArtist() {
 
     // Reset input box when finished
     searchArtistInput.value = "";
+}
+
+// On each input event for the Guess box
+guessInput.addEventListener('input', function(e) {
+    // Update input animation
+    updateInputAnimation()
+    
+    var possibleSongDiv, possibleSongItem, i, val = this.value;
+    // Close any already open lists of autocompleted values
+    closeAllLists();
+    if (!val) { return false;}
+    currentFocus = -1;
+
+    // Create a DIV element that will contain the items (values):
+    possibleSongDiv = document.createElement("DIV");
+    possibleSongDiv.setAttribute("id", this.id + "autocomplete-list");
+    possibleSongDiv.setAttribute("class", "autocomplete-items");
+    // Append the DIV element as a child of the autocomplete container:
+    this.parentNode.appendChild(possibleSongDiv);
+
+    // For each item in the array...
+    for (i = 0; i < songNames.length; i++) {
+        // Check if the item starts with the same letters as the text field value:
+        if (songNames[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+            // Create a DIV element for each matching element:
+            possibleSongItem = document.createElement("DIV");
+            // Make the matching letters bold:
+            possibleSongItem.innerHTML = "<strong>" + songNames[i].substr(0, val.length) + "</strong>";
+            possibleSongItem.innerHTML += songNames[i].substr(val.length);
+            // Insert a input field that will hold the current array item's value:
+            possibleSongItem.innerHTML += "<input type='hidden' value='" + songNames[i] + "'>";
+            // Execute a function when someone clicks on the item value (DIV element):
+            possibleSongItem.addEventListener("click", function(e) {
+                // Insert the value for the autocomplete text field:
+                guessInput.value = this.getElementsByTagName("input")[0].value;
+                // Check if input is correct
+                checkGuessInput();
+                // Close the list of autocompleted values,(or any other open lists of autocompleted values)
+                closeAllLists();
+            });
+            possibleSongDiv.appendChild(possibleSongItem);
+        }
+    }
+});
+
+// Trigger function when input box is selected and key down is pressed
+guessInput.addEventListener("keydown", function(e) {
+    
+    var possibleSongItem = document.getElementById(this.id + "autocomplete-list");
+    if (possibleSongItem) possibleSongItem = possibleSongItem.getElementsByTagName("div");
+    if (e.code == "ArrowDown") {
+        // If the arrow DOWN key is pressed, increase the currentFocus variable:
+        currentFocus++;
+        // Make the current item more visible:
+        addActive(possibleSongItem);
+    } else if (e.code == "ArrowUp") { //up
+        // If the arrow UP key is pressed, decrease the currentFocus variable
+        currentFocus--;
+        // Make the current item more visible:
+        addActive(possibleSongItem);
+    } else if (e.code == "Enter") {
+        // If the ENTER key is pressed, prevent the form from being submitted,
+        e.preventDefault();
+        if (currentFocus > -1) {
+            // Simulate a click on the "active" item:
+            if (possibleSongItem) possibleSongItem[currentFocus].click();
+        }
+        
+        checkGuessInput()
+    }
+});
+
+// Function checks the current guess box input with the correct song name
+function checkGuessInput() {
+    if(guessInput.value.toLowerCase() === currentSong.name.toLowerCase()) {
+        clearInterval(Interval)
+        
+        // If the hundreds place is 0, add a zero to the string
+        // BUGGYYY!!!! If .01 then displays .10 this is obv wrong
+        if(String(tens).length == 1) {
+            tens = tens + "0"
+        }
+
+        // Update Lastest Score
+        score = String(seconds + "." + tens + " seconds")
+        lastGuess.innerHTML = score
+        
+        // Begin Unblur Animation
+        albumArt.classList.remove("blur");
+        albumArt.classList.add("unblur");
+
+        // Change border to green, add correct animation class
+        guessInput.style.border = "solid 2px #1DB954";
+        guessInput.classList.remove("invalid");
+        guessInput.classList.add("correct");
+    }
+    // If incorrect
+    else {
+        // Change border to red, add invalid aniamtion class
+        guessInput.style.border = "solid 2px red";
+        guessInput.classList.add("invalid");
+        guessInput.classList.remove("correct");
+    }
+}
+
+// Function classifies a potential song guess as "Active" for functionality
+function addActive(possibleSongItem) {
+    if (!possibleSongItem) return false;
+    // Start by removing the "active" class on all items:
+    removeActive(possibleSongItem);
+    if (currentFocus >= possibleSongItem.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (possibleSongItem.length - 1);
+    // Add class "autocomplete-active":
+    possibleSongItem[currentFocus].classList.add("autocomplete-active");
+}
+
+// A function to remove the "active" class from all autocomplete items
+function removeActive(possibleSongItem) {
+    for (var i = 0; i < possibleSongItem.length; i++) {
+        possibleSongItem[i].classList.remove("autocomplete-active");
+    }
+}
+
+// Close all autocomplete lists in the document, except the one passed as an argument
+function closeAllLists(elmnt) {
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+        if (elmnt != x[i] && elmnt != guessInput) {
+            x[i].parentNode.removeChild(x[i]);
+        }
+    }
+}
+
+// Close autocomplete div when user clicks away from guess input box
+document.addEventListener("click", function (e) {
+    closeAllLists(e.target);
+});
+
+// Called by HTML when input is changed, allows animation to replay
+function updateInputAnimation() {
+    guessInput.classList.remove("invalid");
+    guessInput.classList.remove("correct");
 }
 
 fetchSongs(artist)
