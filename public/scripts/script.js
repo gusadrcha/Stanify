@@ -60,7 +60,7 @@ function fetchSongs(artistInput) {
     albumArt.classList.remove("blur");
 
     // Create artist URL used for fetch
-    artistURL = "http://localhost:8888/spotify/search/artist/" + artistInput
+    var artistURL = "http://localhost:8888/spotify/search/artist/" + artistInput
 
     // Use artistURL to fetch data from Spotify's API
     fetch(artistURL)
