@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
 
     <title>Stanify</title>
+    <link rel="icon" type="image/x-icon" href="/img/fav.ico">
 </head>
 
 <body class="text-center">
@@ -62,19 +63,18 @@
         </div>
 
         <div class="row middle">
-            <div class="col x d-flex flex-column">
+            <div class="col d-flex flex-column justify-content-center">
                 <h2><span id="seconds">00</span>.<span id="tens">00</span> s</h2>
                 <div><img class="" alt="Album Art" id="album-art"></div>
             </div>
         </div>
 
-        <!-- <div class="row middle-bottom">
-            <div class="col">
-                <div>
-                    <audio id="player"></audio>
-                </div>
+        <div class="row middle-bottom justify-content-center">
+            <div class="d-flex justify-content-between player-btns">
+                <div><button type="button" class="btn btn-dark btn-square-md" id="reveal-button">Reveal</button></div>
+                <div><button type="button" class="btn btn-dark btn-square-md" id="replay-button">Replay</button></div>
             </div>
-        </div> -->
+        </div>
 
         <div class="row bottom d-flex justify-content-center">
             <div class="col-6">
@@ -102,6 +102,7 @@
         crossorigin="anonymous"></script>
 
     <!-- Our Script -->
+    <!-- <script src="script.js" type="module"></script> -->
     <script src="script.js"></script>
     <!-- <script type="module" src="parser.js"></script> -->
 </body>

@@ -11,7 +11,7 @@ html, body {
 
 /* Sections of Page Sizing */
 .top {
-    height: 18vh;
+    height: 13vh;
     padding-top: 2vh;
 }
 
@@ -21,25 +21,26 @@ html, body {
 
 #stanify-logo {
     color: white;
-    /* font-size: 2.5rem; */
+    font-size: 2rem;
 }
 
 .middle {
-    height: 50vh;
+    height: 45vh;
 }
 
-/* .middle-bottom {
-    height: 20vh;
-} */
+.middle-bottom {
+    height: 10vh;
+    /* width: 40%; */
+}
+
+.player-btns{
+    width: 20%;
+    /* margin-top: 1%; */
+    z-index: 99;
+}
 
 .bottom {
     height: 30vh;
-}
-
-.x {
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 /* Dropdown */
@@ -48,7 +49,7 @@ html, body {
     box-shadow: none;
 }
 
-#add-button {
+#add-button, #replay-button, #reveal-button {
     background: #1DB954;
     box-shadow: none;
 }
