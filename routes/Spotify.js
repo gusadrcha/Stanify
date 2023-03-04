@@ -1,7 +1,6 @@
 // Node.js libraries
 const express = require('express');
 const axios = require('axios');
-const { response } = require('express');
 const router = express.Router();
 
 // Spotify id's and secrets
