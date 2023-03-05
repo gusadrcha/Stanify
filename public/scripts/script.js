@@ -34,6 +34,8 @@ var currentSong = "";
 var currentFocus;
 var songIndex = 0;
 
+var userAddedArtists = ["J Cole", "Cordae", "Rich Brian"];
+
 // Data Types
 function Song(name, albumPicture, previewUrl, artistName) {
     this.name = name;
@@ -245,26 +247,46 @@ document.onkeydown = async function (e) {
 
 // Adds artist to dropdown menu when add button is clicked
 function addArtist() {
+    let newArtistName = searchArtistInput.value;
     // TODO Check if input is a legitamate artist
     // If no artist was input, do nothing
-    if(searchArtistInput.value == "") {
+    if(newArtistName == "") {
         return;
     }
 
     // Create <a> tag
-    var newArtist = document.createElement("a");
+    let newArtist = document.createElement("a");
     // Set tag HTML to value in input box 
-    newArtist.innerHTML = searchArtistInput.value;
+    newArtist.innerHTML = newArtistName;
     newArtist.href = "#";
     // Add class for styling/functionality
     newArtist.classList += "dropdown-item";
     // Add onclick function with user input
-    newArtist.addEventListener("onclick", fetchSongs(searchArtistInput.value));
+    newArtist.addEventListener("click", () => {
+        fetchSongs(newArtistName);
+    });
+    // Call because song was entered through input box
+    fetchSongs(newArtistName);
 
     buttonList.appendChild(newArtist);
 
     // Reset input box when finished
     searchArtistInput.value = "";
+}
+
+// Temporary function used to generate artists through dropdown menu for dev purposes
+function addArtists(input) {
+    let newArtist = document.createElement("a");
+    // Set tag HTML to value in input box
+    newArtist.innerHTML = input;
+    newArtist.href = "#";
+    // Add class for styling/functionality
+    newArtist.classList += "dropdown-item";
+    // Add onclick function with user input
+    newArtist.addEventListener("click", () => {
+        fetchSongs(input);
+    });
+    buttonList.appendChild(newArtist);
 }
 
 // On each input event for the Guess box
@@ -420,25 +442,8 @@ function revealTrack(guessFlag) {
     guessInput.classList.add("correct");
 }
 
-// Temporary function used to generate artists through dropdown menu for dev purposes
-function addArtists(input) {
-    var newArtist = document.createElement("a");
-    // Set tag HTML to value in input box 
-    newArtist.innerHTML = input;
-    newArtist.href = "#";
-    // Add class for styling/functionality
-    newArtist.classList += "dropdown-item";
-    // Add onclick function with user input
-    newArtist.addEventListener("click", () => {
-        fetchSongs(input);
-    });
-    buttonList.appendChild(newArtist);
-}
-
 document.addEventListener("DOMContentLoaded", () => { fetchSongs(artist) })
 
 // Plan: add a user's previously added artists to the drop down dynamically
 // Here just for testing purposes as of now
-
-let userAddedArtists = ["J Cole", "Cordae", "Rich Brian"];
 userAddedArtists.forEach(addArtists);
