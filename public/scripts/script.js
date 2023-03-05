@@ -1,7 +1,7 @@
+import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
+
 // DOM Variables
 var player = document.getElementById('player');
-var appendTens = document.getElementById("tens");
-var appendSeconds = document.getElementById("seconds");
 
 var lastGuess = document.getElementById("last-guess");
 
@@ -25,14 +25,9 @@ var guessInput = document.getElementById("input-box");
 
 // Fetch Variables
 var res;
-var songs = [];
+var songs = []; 
 var songNames = [];
 var artist = "Kendrick Lamar";
-
-// Stopwatch Variables
-var seconds = 0; 
-var tens = 0; 
-var Interval;
 
 // Global var
 var currentSong = "";
@@ -52,8 +47,9 @@ function fetchSongs(artistInput) {
     // Reset Game
     songs = [];
     songNames = [];
+    songIndex = 0;
     player.pause();
-    resetTimer(false);
+    resetTimer();
 
     // When Fetching, display loading gif
     albumArt.src = "./img/load.gif";
@@ -188,7 +184,8 @@ async function loadNextTrack(currentSong) {
     if(songIndex != 0) {
         player.play();
         // When user skips song, reset timer
-        resetTimer(true);
+        resetTimer();
+        startTimer();
     }
 
     songIndex += 1;
@@ -220,9 +217,7 @@ document.onkeydown = async function (e) {
         if (player.paused) {
             player.play();
 
-            // Begin Stopwatch
-            clearInterval(Interval);
-            Interval = setInterval(startTimer, 10);
+            startTimer();
         }
         else {
             player.pause();
@@ -232,8 +227,6 @@ document.onkeydown = async function (e) {
     if(e.code == "ArrowRight"){
         closeAllLists();
         currentSong = songs[songIndex++];
-        console.log(currentSong)
-        console.log(replaceWord(currentSong))
 
         if(currentSong.previewUrl == null) {
             await fetchNextTrack(currentSong);
@@ -249,48 +242,6 @@ document.onkeydown = async function (e) {
         // loadNextTrack(currentSong);
     }
 };
-
-// Called when song begins playing, counts up
-function startTimer() {
-    tens++;
-
-    if(tens <= 9) {
-        appendTens.innerHTML = "0" + tens;
-    }
-    if (tens > 9) {
-        appendTens.innerHTML = tens;
-    }
-    if (tens > 99) {
-        seconds++;
-        appendSeconds.innerHTML = "0" + seconds;
-        tens = 0;
-        appendTens.innerHTML = "0" + 0;
-    }
-    if (seconds > 9){
-        appendSeconds.innerHTML = seconds;
-    }
-
-    // If the track track is over, stop the timer
-    if(seconds % 30 == 0 && tens == 0) {
-        clearInterval(Interval);
-        player.pause();
-    }
-}
-
-function resetTimer(nextFlag) {
-    clearInterval(Interval);
-    tens = "00";
-    seconds = "00";
-
-    // Update HTML
-    appendTens.innerHTML = tens;
-    appendSeconds.innerHTML = seconds;
-
-    // If right arrow key is pressed, reset timer
-    if(nextFlag == true) {
-        Interval = setInterval(startTimer, 10);
-    }
-}
 
 // Adds artist to dropdown menu when add button is clicked
 function addArtist() {
@@ -308,7 +259,7 @@ function addArtist() {
     // Add class for styling/functionality
     newArtist.classList += "dropdown-item";
     // Add onclick function with user input
-    newArtist.setAttribute("onclick", `fetchSongs('${searchArtistInput.value}')`);
+    newArtist.addEventListener("onclick", fetchSongs(searchArtistInput.value));
 
     buttonList.appendChild(newArtist);
 
@@ -442,25 +393,17 @@ function updateInputAnimation() {
 }
 
 function replayTrack() {
-    Interval = setInterval(startTimer, 10);
+    startTimer();
     player.play();
 }
 
 function revealTrack(guessFlag) {
-    clearInterval(Interval)
+    const [seconds, miliseconds] = pauseTimer();
     
-    // Save Last Guess time if user guesses through guess input box
-    // Specified by guessFlag boolean var
     // If user clicks revealTrack button, don't save last time
     if(guessFlag) {
-        // If the hundreds place is 0, add a zero to the string
-        // BUGGYYY!!!! If .01 then displays .10 this is obv wrong
-        if(String(tens).length == 1) {
-            tens = tens + "0"
-        }
-
         // Update Lastest Score
-        score = String(seconds + "." + tens + " seconds");
+        let score = String(seconds + "." + miliseconds + " seconds");
         lastGuess.innerHTML = score;
     }
     else{
@@ -477,4 +420,25 @@ function revealTrack(guessFlag) {
     guessInput.classList.add("correct");
 }
 
+// Temporary function used to generate artists through dropdown menu for dev purposes
+function addArtists(input) {
+    var newArtist = document.createElement("a");
+    // Set tag HTML to value in input box 
+    newArtist.innerHTML = input;
+    newArtist.href = "#";
+    // Add class for styling/functionality
+    newArtist.classList += "dropdown-item";
+    // Add onclick function with user input
+    newArtist.addEventListener("onclick", () => {
+        fetchSongs(input);
+    });
+    buttonList.appendChild(newArtist);
+}
+
 document.addEventListener("DOMContentLoaded", () => { fetchSongs(artist) })
+
+// Plan: add a user's previously added artists to the drop down dynamically
+// Here just for testing purposes as of now
+
+let userAddedArtists = ["J Cole", "Cordae", "Rich Brian"];
+userAddedArtists.forEach(addArtists);
