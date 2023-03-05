@@ -429,7 +429,7 @@ function addArtists(input) {
     // Add class for styling/functionality
     newArtist.classList += "dropdown-item";
     // Add onclick function with user input
-    newArtist.addEventListener("onclick", () => {
+    newArtist.addEventListener("click", () => {
         fetchSongs(input);
     });
     buttonList.appendChild(newArtist);
