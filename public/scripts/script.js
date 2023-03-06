@@ -8,7 +8,7 @@ var lastGuess = document.getElementById("last-guess");
 var buttonList = document.getElementById("button-list");
 var addButton = document.getElementById("add-button").addEventListener("click", addArtist);
 // TODO User can click button multiple times and speed up timer
-// TODO Disable replay button until after 30 seconds 
+// TODO Disable replay button until after 30 seconds
 // TODO Decide whether replay button can be pressed during song or only after
 var replayButton = document.getElementById("replay-button").addEventListener("click", replayTrack);
 var revealButton = document.getElementById("reveal-button").addEventListener("click", () => { revealTrack(false) });
@@ -24,10 +24,9 @@ var albumArt = document.getElementById("album-art");
 var guessInput = document.getElementById("input-box");
 
 // Fetch Variables
-var res;
 var songs = []; 
 var songNames = [];
-var artist = "Kendrick Lamar";
+var artist = "Justin Beiber";
 
 // Global var
 var currentSong = "";
@@ -79,7 +78,17 @@ function fetchSongs(artistInput) {
 }
 
 async function fetchNextTrack(song) {
-    fetch(`http://localhost:8888/spotify/search/track/${song.name}/${song.artistName}`)
+    // Handles songs with | symbol messing with fetch requested
+    // If song starts with | symbol, song won't load in
+    let x;
+    if(song.name.indexOf("|") != -1) {
+        x = song.name.split("|")[0];
+    }
+    else {
+        x = song.name;
+    }
+    
+    fetch(`http://localhost:8888/spotify/search/track/${x}/${song.artistName}`)
     .then(async res => {
         if(!res.ok)
         {
