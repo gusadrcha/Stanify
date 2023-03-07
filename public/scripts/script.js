@@ -26,14 +26,14 @@ var guessInput = document.getElementById("input-box");
 // Fetch Variables
 var songs = []; 
 var songNames = [];
-var artist = "Justin Beiber";
+var artist = "Bruno Mars";
 
 // Global var
 var currentSong = "";
 var currentFocus;
 var songIndex = 0;
 
-var userAddedArtists = ["J Cole", "Cordae", "Rich Brian"];
+var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
 
 // Data Types
 function Song(name, albumPicture, previewUrl, artistName) {
@@ -245,6 +245,8 @@ document.onkeydown = async function (e) {
         else {
             loadNextTrack(currentSong);
         }
+        resetTimer();
+        startTimer();
     }
     if(e.code == "ArrowLeft"){
         // TODO Add Arrow Left Functionality
@@ -456,3 +458,8 @@ document.addEventListener("DOMContentLoaded", () => { fetchSongs(artist) })
 // Plan: add a user's previously added artists to the drop down dynamically
 // Here just for testing purposes as of now
 userAddedArtists.forEach(addArtists);
+
+// let volume = document.querySelector("#volume-control");
+// volume.addEventListener("change", function(e) {
+// audio.volume = e.currentTarget.value / 100;
+// })
