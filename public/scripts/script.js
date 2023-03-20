@@ -4,7 +4,9 @@ import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
 var player = document.getElementById('player');
 player.volume = 0.2;
 
-var lastGuess = document.getElementById("last-guess");
+var lastGuessElem = document.getElementById("last-guess");
+var bestGuessElem = document.getElementById("best-guess");
+// var sessionAvgElem = document.getElementById("last-guess");
 
 var buttonList = document.getElementById("button-list");
 var addButton = document.getElementById("add-button").addEventListener("click", addArtist);
@@ -34,6 +36,9 @@ var currentSong = "";
 var currentFocus;
 var songIndex = 0;
 var firstSongFlag = 0;
+// var sessionAvg = 0;
+// var guessedSongCount = 0;
+var bestGuess = Number.MAX_SAFE_INTEGER;
 
 var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
 
@@ -365,7 +370,7 @@ guessInput.addEventListener("keydown", function(e) {
         currentFocus++;
         // Make the current item more visible:
         addActive(possibleSongItem);
-    } else if (e.code == "ArrowUp") { //up
+    } else if (e.code == "ArrowUp") {
         // If the arrow UP key is pressed, decrease the currentFocus variable
         currentFocus--;
         // Make the current item more visible:
@@ -446,8 +451,14 @@ function revealTrack(guessFlag) {
     // If user clicks revealTrack button, don't save last time
     if(guessFlag) {
         // Update Lastest Score
-        let score = String(seconds + "." + miliseconds + " seconds");
-        lastGuess.innerHTML = score;
+        let score = seconds * 1000 + miliseconds;
+        
+        if(score <= bestGuess) {
+            bestGuess = score;
+            bestGuessElem.innerHTML = String(seconds + "." + miliseconds + " seconds");
+        }
+
+        lastGuessElem.innerHTML = String(seconds + "." + miliseconds + " seconds");
     }
     else{
         guessInput.value = currentSong.name;
