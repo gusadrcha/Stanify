@@ -2,6 +2,7 @@ import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
 
 // DOM Variables
 var player = document.getElementById('player');
+player.volume = 0.2;
 
 var lastGuess = document.getElementById("last-guess");
 
@@ -26,12 +27,13 @@ var guessInput = document.getElementById("input-box");
 // Fetch Variables
 var songs = []; 
 var songNames = [];
-var artist = "Bruno Mars";
+var artist = "Kendrick Lamar";
 
 // Global var
 var currentSong = "";
 var currentFocus;
 var songIndex = 0;
+var firstSongFlag = 0;
 
 var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
 
@@ -51,6 +53,7 @@ function fetchSongs(artistInput) {
     songIndex = 0;
     player.pause();
     resetTimer();
+    firstSongFlag = 1;
 
     // When Fetching, display loading gif
     albumArt.src = "./img/load.gif";
@@ -192,14 +195,12 @@ async function loadNextTrack(currentSong) {
     guessInput.style.border = "solid 2px #1DB954";
 
     // If the first song is loaded, don't start player
-    if(songIndex != 0) {
+    if(firstSongFlag != 1) {
         player.play();
         // When user skips song, reset timer
         resetTimer();
         startTimer();
     }
-
-    songIndex += 1;
 }
 
 // https://stackoverflow.com/a/2450976
@@ -233,11 +234,13 @@ document.onkeydown = async function (e) {
         else {
             player.pause();
         }
+        firstSongFlag = 0;
     }
     // Play Random Song by pressing Right Arrow Key
     if(e.code == "ArrowRight"){
         closeAllLists();
-        currentSong = songs[songIndex++];
+        songIndex++;
+        currentSong = songs[songIndex];
 
         if(currentSong.previewUrl == null) {
             await fetchNextTrack(currentSong);
@@ -245,14 +248,21 @@ document.onkeydown = async function (e) {
         else {
             loadNextTrack(currentSong);
         }
-        resetTimer();
-        startTimer();
+
+        firstSongFlag = 0;
     }
+    // Play previous song in queue
     if(e.code == "ArrowLeft"){
-        // TODO Add Arrow Left Functionality
-        // closeAllLists()
-        // currentSong = songs[songIndex--];
-        // loadNextTrack(currentSong);
+        // Do nothing when the user tries to go back further than first track
+        if(songIndex == 0){
+            return;
+        }
+
+        closeAllLists();
+        songIndex--;
+        currentSong = songs[songIndex];
+        
+        loadNextTrack(currentSong);
     }
 };
 
