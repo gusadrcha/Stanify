@@ -10,13 +10,11 @@ router.post('/updateCurrentArtist/:artist', async (req, res) => {
         console.log(`Now it's ${req.params.artist}`)
 
         req.session.currentArtist = req.params.artist
-        // req.session.save()
     }
     else
     {
         console.log(`Current artist updated to ${req.params.artist}`)
         req.session.currentArtist = req.params.artist
-        // req.session.save()
     }
 
     res.send("OK")
