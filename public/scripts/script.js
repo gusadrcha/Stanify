@@ -1,13 +1,15 @@
 import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
+import { loadVisualizer, renderFrame } from "./Visualizer.mjs";
 import { getCurrentUserArtistList, setCurrentArtist, setCurrentUserArtistList } from "./Session.mjs";
 
 // DOM Variables
 var player = document.getElementById('player');
 player.volume = 0.2;
+player.crossOrigin = "anonymous";
 
 var lastGuessElem = document.getElementById("last-guess");
 var bestGuessElem = document.getElementById("best-guess");
-// var sessionAvgElem = document.getElementById("last-guess");
+// var sessionAvgElem = document.getElementById("session-avg");
 
 var buttonList = document.getElementById("button-list");
 var addButton = document.getElementById("add-button").addEventListener("click", addArtist);
@@ -270,11 +272,15 @@ document.onkeydown = async function (e) {
         if (player.paused) {
             player.play();
 
+            loadVisualizer(player);
+            renderFrame();
+
             startTimer();
         }
         else {
             player.pause();
         }
+        
         firstSongFlag = 0;
     }
     // Play Random Song by pressing Right Arrow Key

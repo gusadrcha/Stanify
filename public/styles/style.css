@@ -140,7 +140,6 @@ html, body {
     width: 30%;
 }
 
-
 /* Autocomplete Guess CSS */
 .autocomplete {
     position: relative;
@@ -174,4 +173,11 @@ html, body {
 .autocomplete-active {
     background-color: #302d2d !important; 
     color: #1DB954;
+}
+
+canvas {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    left: 0;
 }
