@@ -267,6 +267,12 @@ function shuffle(array) {
 
 // Audio Player Functionality
 document.onkeydown = async function (e) {
+
+    //ignore key press if user is in a text field
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+    }
+
     // Start Player by pressing 0
     if(e.code == "Digit0"){
         // If the player is paused, begin playing -- vice versa
