@@ -16,7 +16,7 @@ var addButton = document.getElementById("add-button").addEventListener("click", 
 // TODO Disable replay button until after 30 seconds
 // TODO Decide whether replay button can be pressed during song or only after
 var replayButton = document.getElementById("replay-button").addEventListener("click", replayTrack);
-var revealButton = document.getElementById("reveal-button").addEventListener("click", () => { revealTrack(false) });
+var revealButton = document.getElementById("reveal-button").addEventListener("click", () => {  globalGuessFlag = true; revealTrack(globalGuessFlag); });
 var searchArtistInput = document.getElementById("lookup-input");
 // When user presses enter in input box, call add artist function
 searchArtistInput.addEventListener("keyup", ({key}) => {
@@ -41,6 +41,7 @@ var firstSongFlag = 0;
 // var sessionAvg = 0;
 // var guessedSongCount = 0;
 var bestGuess = Number.MAX_SAFE_INTEGER;
+var globalGuessFlag = false;
 
 var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
 
@@ -259,6 +260,7 @@ document.onkeydown = async function (e) {
         else {
             loadNextTrack(currentSong);
         }
+        globalGuessFlag = false;
 
         firstSongFlag = 0;
     }
@@ -396,7 +398,7 @@ guessInput.addEventListener("keydown", function(e) {
 // Function checks the current guess box input with the correct song name
 function checkGuessInput() {
     if(guessInput.value.toLowerCase() === currentSong.name.toLowerCase()) {
-        revealTrack(true)
+        revealTrack(globalGuessFlag);
     }
     // If incorrect
     else {
@@ -455,7 +457,7 @@ function revealTrack(guessFlag) {
     const [seconds, miliseconds] = pauseTimer();
     
     // If user clicks revealTrack button, don't save last time
-    if(guessFlag) {
+    if(!guessFlag) {
         // Update Lastest Score
         let score = seconds * 1000 + miliseconds;
         
@@ -486,7 +488,16 @@ document.addEventListener("DOMContentLoaded", () => { fetchSongs(artist) })
 // Here just for testing purposes as of now
 userAddedArtists.forEach(addArtists);
 
-// let volume = document.querySelector("#volume-control");
-// volume.addEventListener("change", function(e) {
-// audio.volume = e.currentTarget.value / 100;
-// })
+
+//volume stuff
+/*
+ let volume = document.querySelector("#volume-control");
+ volume.addEventListener("change", function(e) {
+ audio.volume = e.currentTarget.value / 100;
+ })
+ */
+
+ 
+
+
+
