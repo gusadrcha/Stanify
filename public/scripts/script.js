@@ -1,5 +1,6 @@
 import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
 import { loadVisualizer, renderFrame } from "./Visualizer.mjs";
+import { getCurrentUserArtistList, setCurrentArtist, setCurrentUserArtistList } from "./Session.mjs";
 
 // DOM Variables
 var player = document.getElementById('player');
@@ -31,7 +32,7 @@ var guessInput = document.getElementById("input-box");
 // Fetch Variables
 var songs = []; 
 var songNames = [];
-var artist = "Kendrick Lamar";
+var artist = "";
 
 // Global var
 var currentSong = "";
@@ -43,7 +44,8 @@ var firstSongFlag = 0;
 var bestGuess = Number.MAX_SAFE_INTEGER;
 var globalGuessFlag = false;
 
-var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
+// var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
+var userAddedArtists = []
 
 // Data Types
 function Song(name, albumPicture, previewUrl, artistName) {
@@ -53,8 +55,37 @@ function Song(name, albumPicture, previewUrl, artistName) {
     this.artistName = artistName;
 }
 
+async function setArtist()
+{
+    var usersArtist;
+
+    // sends a get request to grab the current artist that the user has
+    const response1 = await fetch('http://localhost:8888/session/getArtist')
+                            .then( res => { return res.json() })
+                            .then( res => { usersArtist = res.currentArtist });
+    
+    userAddedArtists = await getCurrentUserArtistList()
+
+    // Plan: add a user's previously added artists to the drop down dynamically
+    // Here just for testing purposes as of now
+    userAddedArtists.forEach(addArtists);
+
+    // user doesnt have previous artist
+    if(usersArtist == "")
+    {
+        artist = "Mac Miller";
+    }
+    else
+    {
+        artist = usersArtist;
+    }
+
+    // sends in the artist to update the webpage with the correct artist
+    await fetchSongs(artist)
+}
+
 // Function fetches data and parses based off input artist
-function fetchSongs(artistInput) {
+async function fetchSongs(artistInput) {
     // Reset Game
     songs = [];
     songNames = [];
@@ -62,6 +93,11 @@ function fetchSongs(artistInput) {
     player.pause();
     resetTimer();
     firstSongFlag = 1;
+
+    artist = artistInput
+
+    // System will update the current user's artist to the artist selected
+    await setCurrentArtist(artistInput);
 
     // When Fetching, display loading gif
     albumArt.src = "./img/load.gif";
@@ -280,13 +316,16 @@ document.onkeydown = async function (e) {
 };
 
 // Adds artist to dropdown menu when add button is clicked
-function addArtist() {
+async function addArtist() {
     let newArtistName = searchArtistInput.value;
     // TODO Check if input is a legitamate artist
     // If no artist was input, do nothing
     if(newArtistName == "") {
         return;
     }
+
+    if(!userAddedArtists.includes(newArtistName))
+        userAddedArtists.push(newArtistName)
 
     // Create <a> tag
     let newArtist = document.createElement("a");
@@ -299,6 +338,13 @@ function addArtist() {
     newArtist.addEventListener("click", () => {
         fetchSongs(newArtistName);
     });
+
+    await setCurrentUserArtistList(userAddedArtists)
+    .catch(error => {
+        console.log(error.message
+            )
+    });
+    
     // Call because song was entered through input box
     fetchSongs(newArtistName);
 
@@ -306,6 +352,7 @@ function addArtist() {
 
     // Reset input box when finished
     searchArtistInput.value = "";
+
 }
 
 // Temporary function used to generate artists through dropdown menu for dev purposes
@@ -482,11 +529,9 @@ function revealTrack(guessFlag) {
     guessInput.classList.add("correct");
 }
 
-document.addEventListener("DOMContentLoaded", () => { fetchSongs(artist) })
+document.addEventListener("DOMContentLoaded", () => { setArtist() })
 
-// Plan: add a user's previously added artists to the drop down dynamically
-// Here just for testing purposes as of now
-userAddedArtists.forEach(addArtists);
+
 
 
 //volume stuff

@@ -17,15 +17,15 @@ const MongoStore = require('connect-mongo');
 
 // Connects to the MongoDB
 mongoose.connect(process.env.MONGO_DB_URL)
-    .then(() =>{ console.log("Connect to DB") })
+    .then(() =>{ console.log("Connected to DB") })
     .catch(err => { console.log(`Error: ${err.message}`)});
 
 const db = mongoose.connection;
 
-
 //Creates a store object with options
 const store = new MongoStore({
     mongoUrl: process.env.MONGO_DB_URL,
+    dbName: "Stanify",
     collectionName: 'sessions',
     autoRemove: 'native',
     ttl: 24 * 7 * 60 * 60
@@ -63,3 +63,5 @@ app.set('view engine', 'ejs');
 app.listen(PORT, () =>{
     console.log("Welcome to the server");
 })
+
+module.exports = db;
