@@ -47,6 +47,10 @@ var globalGuessFlag = false;
 // var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
 var userAddedArtists = []
 
+//initialize visualizer
+loadVisualizer(player);
+renderFrame();
+
 // Data Types
 function Song(name, albumPicture, previewUrl, artistName) {
     this.name = name;
@@ -279,8 +283,8 @@ document.onkeydown = async function (e) {
         if (player.paused) {
             player.play();
 
-            loadVisualizer(player);
-            renderFrame();
+            // loadVisualizer(player);
+            // renderFrame();
 
             startTimer();
         }
