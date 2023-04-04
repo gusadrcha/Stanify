@@ -10,13 +10,16 @@ export async function getCurrentUserArtistList()
 
 export async function setCurrentUserArtistList(artistList)
 {
-    console.log(JSON.stringify(artistList))
+    console.log(artistList)
     const response = await fetch("http://localhost:8888/session/setArtistList", {
         method: "POST",
         body: JSON.stringify(artistList),
         headers: {
             "Content-type": "application/json"
         }
+    })
+    .catch(error => {
+        console.log(error.message)
     })
 }
 

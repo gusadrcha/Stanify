@@ -70,6 +70,9 @@ async function setArtist()
     
     userAddedArtists = await getCurrentUserArtistList()
 
+    if(userAddedArtists == undefined)
+        userAddedArtists = []
+
     // Plan: add a user's previously added artists to the drop down dynamically
     // Here just for testing purposes as of now
     if(userAddedArtists != undefined)
@@ -331,12 +334,19 @@ async function addArtist() {
     let newArtistName = searchArtistInput.value;
     // TODO Check if input is a legitamate artist
     // If no artist was input, do nothing
-    if(newArtistName == "") {
+    if(newArtistName == "" || newArtistName == undefined) {
         return;
     }
 
-    if(!userAddedArtists.includes(newArtistName))
+    if(userAddedArtists != undefined)
+    {
+        if(!userAddedArtists.includes(newArtistName))
+            userAddedArtists.push(newArtistName)
+    }
+    else
+    {
         userAddedArtists.push(newArtistName)
+    }
 
     // Create <a> tag
     let newArtist = document.createElement("a");
@@ -351,6 +361,7 @@ async function addArtist() {
     });
 
     await setCurrentUserArtistList(userAddedArtists)
+    .then(console.log("SUCCESS"))
     .catch(error => {
         console.log(error.message
             )
@@ -363,7 +374,6 @@ async function addArtist() {
 
     // Reset input box when finished
     searchArtistInput.value = "";
-
 }
 
 // Temporary function used to generate artists through dropdown menu for dev purposes

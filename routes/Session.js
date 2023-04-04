@@ -18,7 +18,6 @@ router.post('/updateCurrentArtist/:artist', async (req, res) => {
     }
 
     res.send("OK")
-    
 })
 
 router.get("/getArtist", (req, res) => {
@@ -50,6 +49,7 @@ router.get("/getArtistList", (req, res) => {
 })
 
 router.post("/setArtistList", (req, res) => {
+    console.log("session route: user list updated")
     req.session.artistList = req.body
     res.send("OK")
 })
