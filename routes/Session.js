@@ -36,8 +36,6 @@ router.get("/getArtist", (req, res) => {
 })
 
 router.get("/getArtistList", (req, res) => {
-    var artistList
-
     if(req.session.artistList)
     {
         console.log("User has a list of selected artists")

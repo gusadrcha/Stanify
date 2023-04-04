@@ -72,10 +72,11 @@ async function setArtist()
 
     // Plan: add a user's previously added artists to the drop down dynamically
     // Here just for testing purposes as of now
-    userAddedArtists.forEach(addArtists);
+    if(userAddedArtists != undefined)
+        userAddedArtists.forEach(addArtists);
 
     // user doesnt have previous artist
-    if(usersArtist == "")
+    if(usersArtist == "" || usersArtist == undefined)
     {
         artist = "Mac Miller";
     }
