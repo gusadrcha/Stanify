@@ -181,3 +181,17 @@ canvas {
     position: fixed;
     left: 0;
 }
+
+.modal-content{
+    background-color: #191414;
+}
+
+.btn-primary {
+    background-color: #1DB954;
+    border-color: #1DB954;
+}
+.btn-secondary {
+    color: white;
+    background-color: #1DB954;
+    border-color: #1DB954;
+}

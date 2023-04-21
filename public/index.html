@@ -16,6 +16,26 @@
     <title>Stanify</title>
     <link rel="icon" type="image/x-icon" href="/img/fav.ico">
 </head>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="HowtoPlay" tabindex="-1" role="dialog" aria-labelledby="HowtoPlayLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+          <h5 class="modal-title w-100" id="HowtoPlayLabel">How to Play</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <p>Insert "How to Play" here</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <body class="text-center">
     <nav class="navbar navbar-expand-lg" style="">
@@ -26,8 +46,11 @@
                     Stanify
                 </a>
             </div>
-
         </div>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#HowtoPlay">
+            How to Play
+        </button>
     </nav>
 
     <div class="container-fluid">
