@@ -46,6 +46,20 @@ export async function getCurrentArtist()
     return usersArtist;
 }
 
+export async function getUserStatistics()
+{
+    var userStatistics = undefined;
+
+    const response = await fetch('http://localhost:8888/session/getUserStatistics')
+                           .then( res => { return res.json() })
+                           .then( res => userStatistics = res.userStatistics )
+
+    if(response.ok)
+        console.log("Call was a success...")
+
+    return userStatistics;
+}
+
 export async function setUserStatistics(userStatistics)
 {
     const response = await fetch('http://localhost:8888/session/setUserStatistics', {

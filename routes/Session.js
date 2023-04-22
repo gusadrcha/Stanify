@@ -68,12 +68,15 @@ router.get("/getUserStatistics", (req, res) => {
     if(req.session.userStatistics)
     {
         console.log("Data Found!")
+        console.log(req.session.userStatistics)
     }
     else
     {
         console.log("ERROR: No data found")
     }
     console.log("--------------------------------------")
+
+    res.send({userStatistics: req.session.userStatistics})
 })
 
 router.post("/setUserStatistics", (req, res) => {
@@ -88,30 +91,5 @@ router.post("/setUserStatistics", (req, res) => {
 
     res.send("OK")
 })
-
-async function setArtistStatistics(artist)
-{
-    if(currentArtistStatistics.length != 0)
-    {
-        for(var i = 0; i < currentArtistStatistics.length; i++)
-        {
-            if(currentArtistStatistics[i].name === artist)
-            {
-                console.log("Artist object exists")
-                return
-            }
-        }    
-
-        console.log("Creating a new object")
-        currentArtistStatistics.push(new ArtistStatistics(artist, [], 0))
-    }   
-    else
-    {
-        console.log("List is empty initalizing the list with the default artist")
-        currentArtistStatistics.push(new ArtistStatistics(artist, [], 0))
-    }
-
-    console.log(currentArtistStatistics)
-}
 
 module.exports = router

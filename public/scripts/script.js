@@ -1,6 +1,6 @@
 import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
 import { loadVisualizer, renderFrame } from "./Visualizer.mjs";
-import { getCurrentUserArtistList, setCurrentArtist, getCurrentArtist, setCurrentUserArtistList, setUserStatistics } from "./Session.mjs";
+import { getCurrentUserArtistList, setCurrentArtist, getCurrentArtist, setCurrentUserArtistList, setUserStatistics, getUserStatistics } from "./Session.mjs";
 
 // DOM Variables
 var player = document.getElementById('player');
@@ -106,8 +106,9 @@ async function setArtist()
 
 async function setArtistStatistics(artist)
 {
-    // TODO: Add in retrieval functionality
-    
+    // grabs the user's previous statistics and sets it to the global variable
+    var userStatistics = await getUserStatistics()
+    currentArtistStatisticsList = userStatistics
     
     var i;
     
@@ -125,6 +126,7 @@ async function setArtistStatistics(artist)
                 statistics = new ArtistStatistics(currentArtistStatisticsList[i].name, currentArtistStatisticsList[i].attempts, currentArtistStatisticsList[i].bestAttempt);
 
                 console.log(statistics)
+                console.log(currentArtistStatisticsList)
                 return
             }
         }    
