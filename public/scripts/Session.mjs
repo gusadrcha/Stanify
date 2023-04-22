@@ -54,7 +54,7 @@ export async function getUserStatistics()
                            .then( res => { return res.json() })
                            .then( res => userStatistics = res.userStatistics )
 
-    if(response.ok)
+    if(response != undefined && response.ok)
         console.log("Call was a success...")
 
     return userStatistics;

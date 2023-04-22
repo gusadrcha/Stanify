@@ -47,7 +47,7 @@ var globalGuessFlag = false;
 var userAddedArtists = []
 
 var statistics;
-var indexFound;
+var indexFound = 0;
 
 var currentArtistStatisticsList = [];
 
@@ -109,6 +109,8 @@ async function setArtist()
 
 async function updateStatView()
 {
+    console.log(currentArtistStatisticsList)
+
     if(currentArtistStatisticsList.length != 0 && currentArtistStatisticsList[indexFound].attempts.length != 0)
     {
         console.log("We can update the stat view")
@@ -128,6 +130,11 @@ async function setArtistStatistics(artist)
     var userStatistics = await getUserStatistics()
     currentArtistStatisticsList = userStatistics
     
+    if(currentArtistStatisticsList == undefined)
+    {
+        currentArtistStatisticsList = []
+    }
+
     var i;
     
     // iterates through the list of artistStatistic objects to find the current artist. if
@@ -163,7 +170,7 @@ async function setArtistStatistics(artist)
         currentArtistStatisticsList.push(new ArtistStatistics(artist, [], 0))
 
         statistics = new ArtistStatistics(currentArtistStatisticsList[0].name, currentArtistStatisticsList[0].attempts, currentArtistStatisticsList[0].bestAttempt);
-
+        i = 0;
         console.log(statistics)
     }
 
@@ -211,7 +218,9 @@ async function fetchSongs(artistInput) {
         await loadAudioPlayer();
 
         await setArtistStatistics(artist);
-        await updateStatView();
+        
+        if(currentArtistStatisticsList != undefined)
+            await updateStatView();
     })
 }
 

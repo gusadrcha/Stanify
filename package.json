@@ -1,9 +1,13 @@
 {
   "name": "stanify",
   "version": "1.0.0",
+  "engines": {
+    "node": "19.6.0"
+  },
   "description": "Link for accessing the website: https://arzenith.github.io/Stanify/",
   "main": "script.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js"
   },
