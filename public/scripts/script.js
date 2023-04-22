@@ -9,7 +9,7 @@ player.crossOrigin = "anonymous";
 
 var lastGuessElem = document.getElementById("last-guess");
 var bestGuessElem = document.getElementById("best-guess");
-// var sessionAvgElem = document.getElementById("session-avg");
+var averageGuessElem = document.getElementById("average-guess");
 
 var buttonList = document.getElementById("button-list");
 var addButton = document.getElementById("add-button").addEventListener("click", addArtist);
@@ -45,7 +45,10 @@ var bestGuess = Number.MAX_SAFE_INTEGER;
 var globalGuessFlag = false;
 
 var userAddedArtists = []
+
 var statistics;
+var indexFound;
+
 var currentArtistStatisticsList = [];
 
 //initialize visualizer
@@ -104,6 +107,21 @@ async function setArtist()
     await fetchSongs(artist)
 }
 
+async function updateStatView()
+{
+    if(currentArtistStatisticsList.length != 0 && currentArtistStatisticsList[indexFound].attempts.length != 0)
+    {
+        console.log("We can update the stat view")
+        bestGuessElem.innerHTML = String(currentArtistStatisticsList[indexFound].bestAttempt + " seconds");
+
+        lastGuessElem.innerHTML = String(currentArtistStatisticsList[indexFound].attempts[currentArtistStatisticsList[indexFound].attempts.length - 1] + " seconds")
+        
+        averageGuessElem.innerHTML = String(Number(calculateAverage(currentArtistStatisticsList[indexFound].attempts)).toFixed(2) + " seconds");
+    }
+    else
+        console.log("We can't update the stat view")
+}
+
 async function setArtistStatistics(artist)
 {
     // grabs the user's previous statistics and sets it to the global variable
@@ -127,6 +145,7 @@ async function setArtistStatistics(artist)
 
                 console.log(statistics)
                 console.log(currentArtistStatisticsList)
+                indexFound = i
                 return
             }
         }    
@@ -148,8 +167,10 @@ async function setArtistStatistics(artist)
         console.log(statistics)
     }
 
-    console.log(currentArtistStatisticsList)
+    indexFound = i;
+    console.log(currentArtistStatisticsList);
 }
+
 
 // Function fetches data and parses based off input artist
 async function fetchSongs(artistInput) {
@@ -190,6 +211,7 @@ async function fetchSongs(artistInput) {
         await loadAudioPlayer();
 
         await setArtistStatistics(artist);
+        await updateStatView();
     })
 }
 
@@ -417,8 +439,9 @@ async function addArtist() {
     // Add class for styling/functionality
     newArtist.classList += "dropdown-item";
     // Add onclick function with user input
-    newArtist.addEventListener("click", () => {
-        fetchSongs(newArtistName);
+    newArtist.addEventListener("click", async () => {
+        await setUserStatistics(currentArtistStatisticsList)
+        await fetchSongs(input);
     });
 
     // makes a request to save the list of artists
@@ -518,7 +541,13 @@ guessInput.addEventListener("keydown", function(e) {
         e.preventDefault();
         if (currentFocus > -1) {
             // Simulate a click on the "active" item:
-            if (possibleSongItem) possibleSongItem[currentFocus].click();
+            if (possibleSongItem)
+            {
+                possibleSongItem[currentFocus].click();
+                return
+            } 
+                
+
         }
         
         checkGuessInput()
@@ -589,14 +618,23 @@ function revealTrack(guessFlag) {
     // If user clicks revealTrack button, don't save last time
     if(!guessFlag) {
         // Update Lastest Score
-        let score = seconds * 1000 + miliseconds;
-        
-        if(score <= bestGuess) {
+        let score = (seconds * 1000 + miliseconds) / 1000;
+
+        if(score <= bestGuess || score == 0) {
             bestGuess = score;
+            currentArtistStatisticsList[indexFound].attempts.push(score)
+            currentArtistStatisticsList[indexFound].bestAttempt = bestGuess
             bestGuessElem.innerHTML = String(seconds + "." + miliseconds + " seconds");
+        }
+        else
+        {
+            currentArtistStatisticsList[indexFound].attempts.push(score)
         }
 
         lastGuessElem.innerHTML = String(seconds + "." + miliseconds + " seconds");
+        averageGuessElem.innerHTML = String(Number(calculateAverage(currentArtistStatisticsList[indexFound].attempts)).toFixed(2) + " seconds");
+
+        console.log(currentArtistStatisticsList[indexFound])
     }
     else{
         guessInput.value = currentSong.name;
@@ -614,7 +652,17 @@ function revealTrack(guessFlag) {
 
 document.addEventListener("DOMContentLoaded", () => { setArtist() })
 
-
+function calculateAverage(attempts)
+{
+    var total = 0;
+    for(var i = 0; i < attempts.length; i++) 
+    {
+        total += attempts[i]
+    }
+    
+    
+    return total / attempts.length;
+}
 
 
 //volume stuff
