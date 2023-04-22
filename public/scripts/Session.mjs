@@ -1,7 +1,7 @@
 export async function getCurrentUserArtistList()
 {
     var artistList
-    const response = await fetch("http://localhost:8888/session/getArtistList")
+    const response = await fetch("https://stanify.herokuapp.com/session/getArtistList")
                            .then(res => { return res.json() })
                            .then(res => { artistList = res.artistList });
 
@@ -11,7 +11,7 @@ export async function getCurrentUserArtistList()
 export async function setCurrentUserArtistList(artistList)
 {
     console.log(artistList)
-    const response = await fetch("http://localhost:8888/session/setArtistList", {
+    const response = await fetch("https://stanify.herokuapp.com/session/setArtistList", {
         method: "POST",
         body: JSON.stringify(artistList),
         headers: {
@@ -25,7 +25,7 @@ export async function setCurrentUserArtistList(artistList)
 
 export async function setCurrentArtist(artist)
 {
-    const response2 = await fetch(`http://localhost:8888/session/updateCurrentArtist/${artist}`, {
+    const response2 = await fetch(`https://stanify.herokuapp.com/session/updateCurrentArtist/${artist}`, {
         method: 'POST',
         headers: {
             "Content-type": "application/json; charset=UTF-8"}
@@ -39,7 +39,7 @@ export async function getCurrentArtist()
 {
     var usersArtist = undefined;
 
-    const response1 = await fetch('http://localhost:8888/session/getArtist')
+    const response1 = await fetch('https://stanify.herokuapp.com/session/getArtist')
                             .then( res => { return res.json() })
                             .then( res => { usersArtist = res.currentArtist });
 
@@ -50,7 +50,7 @@ export async function getUserStatistics()
 {
     var userStatistics = undefined;
 
-    const response = await fetch('http://localhost:8888/session/getUserStatistics')
+    const response = await fetch('https://stanify.herokuapp.com/session/getUserStatistics')
                            .then( res => { return res.json() })
                            .then( res => userStatistics = res.userStatistics )
 
@@ -62,7 +62,7 @@ export async function getUserStatistics()
 
 export async function setUserStatistics(userStatistics)
 {
-    const response = await fetch('http://localhost:8888/session/setUserStatistics', {
+    const response = await fetch('https://stanify.herokuapp.com/session/setUserStatistics', {
         method: 'POST',
         body: JSON.stringify(userStatistics),
         headers: {

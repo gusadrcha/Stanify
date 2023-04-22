@@ -199,7 +199,7 @@ async function fetchSongs(artistInput) {
     albumArt.classList.remove("blur");
 
     // Create artist URL used for fetch
-    var artistURL = "http://localhost:8888/spotify/search/artist/" + artistInput
+    var artistURL = "https://stanify.herokuapp.com/spotify/search/artist/" + artistInput
 
     // Use artistURL to fetch data from Spotify's API
     fetch(artistURL)
@@ -235,7 +235,7 @@ async function fetchNextTrack(song) {
         x = song.name;
     }
     
-    fetch(`http://localhost:8888/spotify/search/track/${x}/${song.artistName}`)
+    fetch(`https://stanify.herokuapp.com/spotify/search/track/${x}/${song.artistName}`)
     .then(async res => {
         if(!res.ok)
         {
