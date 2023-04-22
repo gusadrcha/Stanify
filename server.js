@@ -52,7 +52,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Routes
-app.use('/spotify', require('./routes/spotify'))
+app.use('/spotify', require('./routes/Spotify'))
 app.use('/session', require('./routes/Session'))
 
 // View Engine
