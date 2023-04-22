@@ -1,6 +1,6 @@
 import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
 import { loadVisualizer, renderFrame } from "./Visualizer.mjs";
-import { getCurrentUserArtistList, setCurrentArtist, setCurrentUserArtistList } from "./Session.mjs";
+import { getCurrentUserArtistList, setCurrentArtist, getCurrentArtist, setCurrentUserArtistList, setUserStatistics } from "./Session.mjs";
 
 // DOM Variables
 var player = document.getElementById('player');
@@ -44,8 +44,9 @@ var firstSongFlag = 0;
 var bestGuess = Number.MAX_SAFE_INTEGER;
 var globalGuessFlag = false;
 
-// var userAddedArtists = ["Justin Beiber", "Taylor Swift", "Ed Sheeran"];
 var userAddedArtists = []
+var statistics;
+var currentArtistStatisticsList = [];
 
 //initialize visualizer
 loadVisualizer(player);
@@ -59,15 +60,26 @@ function Song(name, albumPicture, previewUrl, artistName) {
     this.artistName = artistName;
 }
 
+function ArtistStatistics(name, attempts, bestAttempt)
+{
+    this.name = name;
+
+    if(attempts.length == 0)
+        this.attempts = [];
+    else
+        this.attempts = attempts;
+
+    this.bestAttempt = bestAttempt;
+}
+
 async function setArtist()
 {
     var usersArtist;
 
-    // sends a get request to grab the current artist that the user has
-    const response1 = await fetch('http://localhost:8888/session/getArtist')
-                            .then( res => { return res.json() })
-                            .then( res => { usersArtist = res.currentArtist });
-    
+    // sends a GET request to grab the current artist that the user has
+    usersArtist = await getCurrentArtist();
+   
+    // sends a GET request for the user's current list of artists
     userAddedArtists = await getCurrentUserArtistList()
 
     if(userAddedArtists == undefined)
@@ -90,6 +102,51 @@ async function setArtist()
 
     // sends in the artist to update the webpage with the correct artist
     await fetchSongs(artist)
+}
+
+async function setArtistStatistics(artist)
+{
+    // TODO: Add in retrieval functionality
+    
+    
+    var i;
+    
+    // iterates through the list of artistStatistic objects to find the current artist. if
+    // the current artist is found, then set the working 'statistics' variable to it. else
+    // create a new object for the artist and add it to the list
+    if(currentArtistStatisticsList.length != 0)
+    {
+        for(i = 0; i < currentArtistStatisticsList.length; i++)
+        {
+            if(currentArtistStatisticsList[i].name === artist)
+            {
+                console.log("Artist object exists")
+
+                statistics = new ArtistStatistics(currentArtistStatisticsList[i].name, currentArtistStatisticsList[i].attempts, currentArtistStatisticsList[i].bestAttempt);
+
+                console.log(statistics)
+                return
+            }
+        }    
+
+        console.log("Creating a new object")
+        currentArtistStatisticsList.push(new ArtistStatistics(artist, [], 0))
+
+        statistics = new ArtistStatistics(currentArtistStatisticsList[i].name, currentArtistStatisticsList[i].attempts, currentArtistStatisticsList[i].bestAttempt);
+
+        console.log(statistics)
+    }   
+    else
+    {
+        console.log("List is empty initalizing the list with the default artist")
+        currentArtistStatisticsList.push(new ArtistStatistics(artist, [], 0))
+
+        statistics = new ArtistStatistics(currentArtistStatisticsList[0].name, currentArtistStatisticsList[0].attempts, currentArtistStatisticsList[0].bestAttempt);
+
+        console.log(statistics)
+    }
+
+    console.log(currentArtistStatisticsList)
 }
 
 // Function fetches data and parses based off input artist
@@ -129,6 +186,8 @@ async function fetchSongs(artistInput) {
         await parseArtist(response);
         // Load Audio Player with all generated tracks
         await loadAudioPlayer();
+
+        await setArtistStatistics(artist);
     })
 }
 
@@ -360,12 +419,12 @@ async function addArtist() {
         fetchSongs(newArtistName);
     });
 
+    // makes a request to save the list of artists
     await setCurrentUserArtistList(userAddedArtists)
-    .then(console.log("SUCCESS"))
-    .catch(error => {
-        console.log(error.message
-            )
-    });
+        .then(console.log("SUCCESS"))
+        .catch(error => {
+            console.log(error.message)
+         });
     
     // Call because song was entered through input box
     fetchSongs(newArtistName);
@@ -385,8 +444,9 @@ function addArtists(input) {
     // Add class for styling/functionality
     newArtist.classList += "dropdown-item";
     // Add onclick function with user input
-    newArtist.addEventListener("click", () => {
-        fetchSongs(input);
+    newArtist.addEventListener("click", async () => {
+        await setUserStatistics(currentArtistStatisticsList)
+        await fetchSongs(input);
     });
     buttonList.appendChild(newArtist);
 }

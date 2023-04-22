@@ -2,6 +2,13 @@
 const express = require('express');
 const router = express.Router();
 
+function ArtistStatistics(name, attempts, bestAttempt)
+{
+    this.name = name;
+    this.attempts = attempts;
+    this.bestAttempt = bestAttempt;
+}
+
 router.post('/updateCurrentArtist/:artist', async (req, res) => {
     if(req.session.currentArtist)
     {
@@ -53,5 +60,58 @@ router.post("/setArtistList", (req, res) => {
     req.session.artistList = req.body
     res.send("OK")
 })
+
+router.get("/getUserStatistics", (req, res) => {
+    console.log("--------------------------------------")
+    console.log("Retrieving user data....")
+
+    if(req.session.userStatistics)
+    {
+        console.log("Data Found!")
+    }
+    else
+    {
+        console.log("ERROR: No data found")
+    }
+    console.log("--------------------------------------")
+})
+
+router.post("/setUserStatistics", (req, res) => {
+    console.log("--------------------------------------")
+    console.log("Welcome to the set user statistics")
+
+    console.log(req.body)
+
+    req.session.userStatistics = req.body;
+
+    console.log("--------------------------------------")
+
+    res.send("OK")
+})
+
+async function setArtistStatistics(artist)
+{
+    if(currentArtistStatistics.length != 0)
+    {
+        for(var i = 0; i < currentArtistStatistics.length; i++)
+        {
+            if(currentArtistStatistics[i].name === artist)
+            {
+                console.log("Artist object exists")
+                return
+            }
+        }    
+
+        console.log("Creating a new object")
+        currentArtistStatistics.push(new ArtistStatistics(artist, [], 0))
+    }   
+    else
+    {
+        console.log("List is empty initalizing the list with the default artist")
+        currentArtistStatistics.push(new ArtistStatistics(artist, [], 0))
+    }
+
+    console.log(currentArtistStatistics)
+}
 
 module.exports = router
