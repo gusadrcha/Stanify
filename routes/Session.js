@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
+// artist statistics object used to keep track of best attempt, number of attempts,
+// and the name of the artist
 function ArtistStatistics(name, attempts, bestAttempt)
 {
     this.name = name;
@@ -9,6 +11,22 @@ function ArtistStatistics(name, attempts, bestAttempt)
     this.bestAttempt = bestAttempt;
 }
 
+// GET endpoint to retreive the last chosen artist from the user
+router.get("/getArtist", (req, res) => {
+    if(req.session.currentArtist)
+    {
+        console.log("User has previously selected an artist")
+        console.log(req.session.currentArtist)
+        res.send({ currentArtist: req.session.currentArtist })
+    }
+    else
+    {
+        res.send({ currentArtist: null })
+        console.log("User has NOT previously selected an artist")
+    }
+})
+
+// POST endpoint to update the artist that the user last chose
 router.post('/updateCurrentArtist/:artist', async (req, res) => {
     if(req.session.currentArtist)
     {
@@ -27,20 +45,7 @@ router.post('/updateCurrentArtist/:artist', async (req, res) => {
     res.send("OK")
 })
 
-router.get("/getArtist", (req, res) => {
-    if(req.session.currentArtist)
-    {
-        console.log("User has previously selected an artist")
-        console.log(req.session.currentArtist)
-        res.send({ currentArtist: req.session.currentArtist })
-    }
-    else
-    {
-        res.send({ currentArtist: null })
-        console.log("User has NOT previously selected an artist")
-    }
-})
-
+// GET enpoint to retreive the user's list of added artists
 router.get("/getArtistList", (req, res) => {
     if(req.session.artistList)
     {
@@ -55,12 +60,14 @@ router.get("/getArtistList", (req, res) => {
     res.send({ artistList: req.session.artistList })
 })
 
+// POST enpoint to set the current user's list of added artists
 router.post("/setArtistList", (req, res) => {
     console.log("session route: user list updated")
     req.session.artistList = req.body
     res.send("OK")
 })
 
+// GET endpoint to retreive the user's statistics
 router.get("/getUserStatistics", (req, res) => {
     console.log("--------------------------------------")
     console.log("Retrieving user data....")
@@ -79,6 +86,7 @@ router.get("/getUserStatistics", (req, res) => {
     res.send({userStatistics: req.session.userStatistics})
 })
 
+// POST endpoint to set the user's statistics
 router.post("/setUserStatistics", (req, res) => {
     console.log("--------------------------------------")
     console.log("Welcome to the set user statistics")

@@ -26,8 +26,6 @@ const reqOptions = {
     }
 };
 
-
-
 // ----- Middleware for the base endpoint of spotify ------
 // Middleware will generate a new token when the user first accesses the  website
 router.use('/', async (req, res, next) => {
@@ -251,6 +249,9 @@ async function formatArtistAlbums(artistAlbums){
 }
 
 // ---- Object defintions ----
+
+// Artist object used to keep track of an artist's name, picture, Spotify id,
+// and array of albums
 function Artist(name, artistPicture, id, albums)
 {
     this.name = name;
@@ -259,6 +260,8 @@ function Artist(name, artistPicture, id, albums)
     this.albums = albums;
 }
 
+// ArtistAlbums object used to keep track of the name, picture, Spotify id, and
+// array of tracks for each album of an artist
 function ArtistAlbums(name, albumPicture, id, tracks)
 {
     this.name = name;
@@ -267,6 +270,8 @@ function ArtistAlbums(name, albumPicture, id, tracks)
     this.tracks = tracks;
 }
 
+// Track object used to keep track of the name, Spotify previewUrl, and 
+// Spotify id for a track of an artist
 function Track(name, previewUrl, id)
 {
     this.name = name;
