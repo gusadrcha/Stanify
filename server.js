@@ -8,13 +8,6 @@ const PORT = process.env.PORT;
 const express = require("express");
 const app = express();
 const bodyParser = require('body-parser');
-const cors = require("cors");
-
-app.use(
-    cors({
-        origin: "*",
-    })
-)
 
 // MongoDB and Sessions
 const mongoose = require('mongoose');
