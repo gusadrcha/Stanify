@@ -522,7 +522,7 @@ guessInput.addEventListener('input', function(e) {
 });
 
 // Trigger function when input box is selected and key down is pressed
-guessInput.addEventListener("keydown", function(e) {
+guessInput.addEventListener("keydown", async function(e) {
     
     var possibleSongItem = document.getElementById(this.id + "autocomplete-list");
     if (possibleSongItem) possibleSongItem = possibleSongItem.getElementsByTagName("div");
@@ -550,14 +550,14 @@ guessInput.addEventListener("keydown", function(e) {
 
         }
         
-        checkGuessInput()
+       await checkGuessInput()
     }
 });
 
 // Function checks the current guess box input with the correct song name
-function checkGuessInput() {
+async function checkGuessInput() {
     if(guessInput.value.toLowerCase() === currentSong.name.toLowerCase()) {
-        revealTrack(globalGuessFlag);
+        await revealTrack(globalGuessFlag);
     }
     // If incorrect
     else {
@@ -612,7 +612,7 @@ function replayTrack() {
     player.play();
 }
 
-function revealTrack(guessFlag) {
+async function revealTrack(guessFlag) {
     const [seconds, miliseconds] = pauseTimer();
     
     // If user clicks revealTrack button, don't save last time
@@ -637,6 +637,8 @@ function revealTrack(guessFlag) {
 
         // updates the average stat 
         averageGuessElem.innerHTML = String(Number(calculateAverage(currentArtistStatisticsList[indexFound].attempts)).toFixed(2) + " seconds");
+
+        await setUserStatistics(currentArtistStatisticsList);
     }
     else{
         guessInput.value = currentSong.name;
