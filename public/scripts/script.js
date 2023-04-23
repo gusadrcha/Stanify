@@ -1,5 +1,5 @@
 import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
-import { loadVisualizer, renderFrame } from "./Visualizer.mjs";
+import { loadVisualizer, renderFrame, context } from "./Visualizer.mjs";
 import { getCurrentUserArtistList, setCurrentArtist, getCurrentArtist, setCurrentUserArtistList, setUserStatistics, getUserStatistics } from "./Session.mjs";
 
 // DOM Variables
@@ -326,7 +326,8 @@ async function loadAudioPlayer() {
 async function loadNextTrack(currentSong) {
     // Load into player
     player.src = currentSong.previewUrl;
-    
+    context.resume()
+
     // Album Art Handling
     albumArt.src = currentSong.albumPicture;
     albumArt.classList.remove("unblur");

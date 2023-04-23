@@ -1,6 +1,6 @@
 // https://codepen.io/nfj525/pen/rVBaab
 
-var context;
+export var context;
 var src;
 var analyser;
 var canvas;
