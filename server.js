@@ -1,9 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
-const cors = require("cors");
-app.use(cors());
-
 // Environment Variables
 const PORT = process.env.PORT;
 
