@@ -22,6 +22,15 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
+// Allow cross-origin-requests
+const cors = require("cors");
+
+app.use(
+    cors({
+        origin: "*",
+    })
+)
+
 // Connects to the MongoDB
 mongoose.connect(process.env.MONGO_DB_URL)
     .then(() =>{ console.log("Connected to DB") })

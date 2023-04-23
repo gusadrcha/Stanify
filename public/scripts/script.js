@@ -1,5 +1,5 @@
 import { startTimer, pauseTimer, resetTimer } from "./Timer.mjs";
-import { loadVisualizer, renderFrame } from "./Visualizer.mjs";
+import { loadVisualizer, renderFrame, context } from "./Visualizer.mjs";
 import { getCurrentUserArtistList, setCurrentArtist, getCurrentArtist, setCurrentUserArtistList, setUserStatistics, getUserStatistics } from "./Session.mjs";
 
 // DOM Variables
@@ -44,11 +44,9 @@ var firstSongFlag = 0;
 var bestGuess = Number.MAX_SAFE_INTEGER;
 var globalGuessFlag = false;
 
+// Variables to keep track of the user's statistics
 var userAddedArtists = []
-
-var statistics;
 var indexFound = 0;
-
 var currentArtistStatisticsList = [];
 
 //initialize visualizer
@@ -107,10 +105,10 @@ async function setArtist()
     await fetchSongs(artist)
 }
 
+// Checks to see if the stat view is able to be updated, this guards in the case in which the user is
+// new or hasn't had any attempts for the current selected artist
 async function updateStatView()
 {
-    console.log(currentArtistStatisticsList)
-
     if(currentArtistStatisticsList.length != 0 && currentArtistStatisticsList[indexFound].attempts.length != 0)
     {
         console.log("We can update the stat view")
@@ -124,6 +122,9 @@ async function updateStatView()
         console.log("We can't update the stat view")
 }
 
+// Function that sets the statistics into the global variables. Sends a GET request for the user's
+// data and checks to see if they have any data (for previous user). If they don't then initalize an 
+// artistStatistics object of the default artist (for new user).
 async function setArtistStatistics(artist)
 {
     // grabs the user's previous statistics and sets it to the global variable
@@ -147,11 +148,6 @@ async function setArtistStatistics(artist)
             if(currentArtistStatisticsList[i].name === artist)
             {
                 console.log("Artist object exists")
-
-                statistics = new ArtistStatistics(currentArtistStatisticsList[i].name, currentArtistStatisticsList[i].attempts, currentArtistStatisticsList[i].bestAttempt);
-
-                console.log(statistics)
-                console.log(currentArtistStatisticsList)
                 indexFound = i
                 return
             }
@@ -159,19 +155,12 @@ async function setArtistStatistics(artist)
 
         console.log("Creating a new object")
         currentArtistStatisticsList.push(new ArtistStatistics(artist, [], 0))
-
-        statistics = new ArtistStatistics(currentArtistStatisticsList[i].name, currentArtistStatisticsList[i].attempts, currentArtistStatisticsList[i].bestAttempt);
-
-        console.log(statistics)
     }   
     else
     {
         console.log("List is empty initalizing the list with the default artist")
         currentArtistStatisticsList.push(new ArtistStatistics(artist, [], 0))
-
-        statistics = new ArtistStatistics(currentArtistStatisticsList[0].name, currentArtistStatisticsList[0].attempts, currentArtistStatisticsList[0].bestAttempt);
         i = 0;
-        console.log(statistics)
     }
 
     indexFound = i;
@@ -219,6 +208,7 @@ async function fetchSongs(artistInput) {
 
         await setArtistStatistics(artist);
         
+        // Updates the stat view
         if(currentArtistStatisticsList != undefined)
             await updateStatView();
     })
@@ -326,7 +316,8 @@ async function loadAudioPlayer() {
 async function loadNextTrack(currentSong) {
     // Load into player
     player.src = currentSong.previewUrl;
-    
+    context.resume();
+
     // Album Art Handling
     albumArt.src = currentSong.albumPicture;
     albumArt.classList.remove("unblur");
@@ -531,7 +522,7 @@ guessInput.addEventListener('input', function(e) {
 });
 
 // Trigger function when input box is selected and key down is pressed
-guessInput.addEventListener("keydown", function(e) {
+guessInput.addEventListener("keydown", async function(e) {
     
     var possibleSongItem = document.getElementById(this.id + "autocomplete-list");
     if (possibleSongItem) possibleSongItem = possibleSongItem.getElementsByTagName("div");
@@ -559,14 +550,14 @@ guessInput.addEventListener("keydown", function(e) {
 
         }
         
-        checkGuessInput()
+       await checkGuessInput()
     }
 });
 
 // Function checks the current guess box input with the correct song name
-function checkGuessInput() {
+async function checkGuessInput() {
     if(guessInput.value.toLowerCase() === currentSong.name.toLowerCase()) {
-        revealTrack(globalGuessFlag);
+        await revealTrack(globalGuessFlag);
     }
     // If incorrect
     else {
@@ -621,7 +612,7 @@ function replayTrack() {
     player.play();
 }
 
-function revealTrack(guessFlag) {
+async function revealTrack(guessFlag) {
     const [seconds, miliseconds] = pauseTimer();
     
     // If user clicks revealTrack button, don't save last time
@@ -629,6 +620,8 @@ function revealTrack(guessFlag) {
         // Update Lastest Score
         let score = (seconds * 1000 + miliseconds) / 1000;
 
+        // if the score is either 0 or is less than the bestGuess then update the stat view, add the score
+        // to the list of attempts, and update the bestGuess. Else then add the score the list of attempts
         if(score <= bestGuess || score == 0) {
             bestGuess = score;
             currentArtistStatisticsList[indexFound].attempts.push(score)
@@ -639,11 +632,13 @@ function revealTrack(guessFlag) {
         {
             currentArtistStatisticsList[indexFound].attempts.push(score)
         }
-
+        
         lastGuessElem.innerHTML = String(seconds + "." + miliseconds + " seconds");
+
+        // updates the average stat 
         averageGuessElem.innerHTML = String(Number(calculateAverage(currentArtistStatisticsList[indexFound].attempts)).toFixed(2) + " seconds");
 
-        console.log(currentArtistStatisticsList[indexFound])
+        await setUserStatistics(currentArtistStatisticsList);
     }
     else{
         guessInput.value = currentSong.name;
@@ -661,6 +656,7 @@ function revealTrack(guessFlag) {
 
 document.addEventListener("DOMContentLoaded", () => { setArtist() })
 
+// Calculates the average time of the current selected artist 
 function calculateAverage(attempts)
 {
     var total = 0;
