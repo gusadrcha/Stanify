@@ -54,11 +54,12 @@ loadVisualizer(player);
 renderFrame();
 
 // Data Types
-function Song(name, albumPicture, previewUrl, artistName) {
+function Song(name, albumPicture, previewUrl, artistName, guess) {
     this.name = name;
     this.albumPicture = albumPicture;
     this.previewUrl = previewUrl;
     this.artistName = artistName;
+    this.guess = guess;
 }
 
 function ArtistStatistics(name, attempts, bestAttempt)
@@ -265,12 +266,12 @@ async function parseArtist(res) {
             // If the track exists
             if(track.previewUrl != null) {
                 // Add track to songs array
-                songs.push(new Song(track.name, album.albumPicture, track.previewUrl, artistParsed.name));
+                songs.push(new Song(track.name, album.albumPicture, track.previewUrl, artistParsed.name, false));
 
                 nonNullTrackCount++;
             }
             else {
-                songs.push(new Song(track.name, album.albumPicture, null, artistParsed.name))
+                songs.push(new Song(track.name, album.albumPicture, null, artistParsed.name, false))
 
                 nullTrackCount++;
             }
@@ -615,6 +616,12 @@ function replayTrack() {
 async function revealTrack(guessFlag) {
     const [seconds, miliseconds] = pauseTimer();
     
+    //if the song was already guessed, move on
+    if(currentSong.guess == true){
+        //alert('song already guessed');                          //temporary
+        return;
+    }
+
     // If user clicks revealTrack button, don't save last time
     if(!guessFlag) {
         // Update Lastest Score
