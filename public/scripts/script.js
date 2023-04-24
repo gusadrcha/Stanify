@@ -618,7 +618,7 @@ async function revealTrack(guessFlag) {
     // If user clicks revealTrack button, don't save last time
     if(!guessFlag) {
         // Update Lastest Score
-        let score = (seconds * 1000 + miliseconds) / 1000;
+        let score = (seconds * 1000 + miliseconds * 10) / 1000;
 
         // if the score is either 0 or is less than the bestGuess then update the stat view, add the score
         // to the list of attempts, and update the bestGuess. Else then add the score the list of attempts
