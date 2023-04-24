@@ -116,7 +116,7 @@ router.use('/search/artist/:search', async (req, res, next) =>{
     catch(error)
     {
         console.log(error.message);
-        res.redirect('https://localhost:8888/');
+        res.redirect('https://stanify.herokuapp.com/');
     }
 
     var tracks = [];
@@ -159,7 +159,7 @@ router.use('/search/artist/:search', async (req, res, next) =>{
 // Root endpoint of the Spotify router
 router.get('/', async (req, res) => {
     console.log(`Welcome to the Spotify Endpoint\nCurrent Token: ${accessToken}`);
-    res.redirect("http://localhost:8888/");
+    res.redirect("https://stanify.herokuapp.com/");
 })
 
 // Endpoint for user to request an artist that takes in a search parameter
@@ -169,7 +169,7 @@ router.get('/search/artist/:search', async (req, res) => {
 
 router.get('/search/track/:name/:artist', async (req, res) => {
     if(!(req.params.artist && req.params.name))
-        res.redirect("http://localhost:8888")
+        res.redirect("https://stanify.herokuapp.com/")
 
     var customUrl = baseUrl + `search?query=track:${req.params.name} artist:${req.params.artist}&type=track&limit=1`
 
@@ -186,7 +186,7 @@ router.get('/search/track/:name/:artist', async (req, res) => {
     catch(err)
     {
         console.log(err.message)
-        res.redirect("http://localhost:8888")
+        res.redirect("https://stanify.herokuapp.com/")
     }
 })
 
